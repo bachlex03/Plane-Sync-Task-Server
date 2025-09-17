@@ -1,11 +1,16 @@
 import path from "path";
 import chalk from "chalk";
+import "dotenv/config";
 
 import {
   markdownParser,
   parseMarkdownIssues,
 } from "../src/utils/markdown-parser.js";
 import { extractIssues, validateIssue } from "../src/utils/issue-extractor.js";
+import {
+  createIssueInPlane,
+  getIssuesInPlane,
+} from "../src/utils/plane-api.js";
 
 const checklistFolder = path.resolve(process.cwd(), "checklist-example");
 const markdownFile = path.resolve(checklistFolder, "checklist-example.md");
@@ -55,6 +60,7 @@ async function testMarkdownParsing() {
   }
 
   // Test 3: Issue validation
+  let issues = null;
   console.log(chalk.blue("\n✅ Test 3: Issue validation..."));
   try {
     const issues = extractIssues(ast);
@@ -69,6 +75,8 @@ async function testMarkdownParsing() {
 
       if (!isValid) {
         console.log(chalk.red("    Validation failed for issue:"), issue);
+
+        throw new Error("Validation failed for issue");
       }
     });
   } catch (error) {
@@ -80,7 +88,7 @@ async function testMarkdownParsing() {
   // Test 4: Complete markdown issue parsing
   console.log(chalk.blue("\n🚀 Test 4: Complete markdown issue parsing..."));
   try {
-    const issues = await parseMarkdownIssues(markdownFile);
+    issues = await parseMarkdownIssues(markdownFile);
     console.log(chalk.green("✅ Complete parsing successful"));
     console.log(chalk.gray("Valid issues count:", issues.length));
 
@@ -114,6 +122,26 @@ async function testMarkdownParsing() {
   // Test 5: Test with different issue formats
   console.log(chalk.blue("\n🔧 Test 5: Testing different issue formats..."));
   await testDifferentIssueFormats();
+
+  // Test 6: Test Plane API integration (POST)
+  console.log(chalk.blue("\n🚀 Test 6: Testing Plane API integration..."));
+  try {
+    await createIssueInPlane(issues[0]);
+    console.log(chalk.green("✅ Plane API integration successful"));
+  } catch (error) {
+    console.log(chalk.red("❌ Plane API integration failed:"), error.message);
+    return;
+  }
+
+  // Test 7: Test Plane API integration (GET)
+  // console.log(chalk.blue("\n🚀 Test 7: Testing Plane API integration..."));
+  // try {
+  //   await getIssuesInPlane();
+  //   console.log(chalk.green("✅ Plane API integration successful"));
+  // } catch (error) {
+  //   console.log(chalk.red("❌ Plane API integration failed:"), error.message);
+  //   return;
+  // }
 
   console.log(chalk.green.bold("\n🎉 All tests completed!"));
 }
