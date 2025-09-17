@@ -4,16 +4,28 @@ import "dotenv/config";
 
 const stateOfIssues = {
   backlog: "b2339689-0156-490f-b557-0b0b9353916b",
-  todo: "b3bcaf66-e3a9-464e-a9fc-3a8d5da5f4bf",
+  todo: "56527be1-33ab-4e83-b280-97a32b1ba625",
+  in_progress: "3179ca5c-7d72-439a-a548-22dc41f303fd",
   done: "b3bcaf66-e3a9-464e-a9fc-3a8d5da5f4bf",
-  completed: "b3bcaf66-e3a9-464e-a9fc-3a8d5da5f4bf",
+  cancelled: "3179ca5c-7d72-439a-a548-22dc41f303fd",
 };
 
-export async function createIssueInPlane(issueData) {
+/**
+ * Create a new issue in Plane
+ * @param {Object} issueData - Issue data object
+ * @returns {Object} Created issue response
+ */
+export async function createIssue(issueData) {
   try {
     console.log(chalk.green(`Issue creating in Plane...${issueData.name}`));
-
     console.log("issueData", issueData);
+
+    // validate data
+    const priority = validateIssuePriority(issueData.priority);
+
+    if (!priority) {
+      throw new Error("Invalid priority");
+    }
 
     const response = await axios.post(
       `${process.env.PLANE_API_BASE_URL}/api/v1/workspaces/${process.env.PLANE_WORKSPACE_SLUG}/projects/${process.env.PLANE_PROJECT_ID}/issues/`,
@@ -38,7 +50,9 @@ export async function createIssueInPlane(issueData) {
         project: issueData.project,
         workspace: issueData.workspace,
         parent: issueData.parent,
-        state: "b3bcaf66-e3a9-464e-a9fc-3a8d5da5f4bf",
+        state: issueData.markdown.isCompleted
+          ? stateOfIssues["done"]
+          : stateOfIssues["todo"],
         assignees: issueData.assignees,
         labels: issueData.labels,
       },
@@ -62,7 +76,11 @@ export async function createIssueInPlane(issueData) {
   }
 }
 
-export async function getIssuesInPlane() {
+/**
+ * Get all issues from Plane
+ * @returns {Array} Array of issues
+ */
+export async function getIssues() {
   try {
     const response = await axios.get(
       `${process.env.PLANE_API_BASE_URL}/api/v1/workspaces/${process.env.PLANE_WORKSPACE_SLUG}/projects/${process.env.PLANE_PROJECT_ID}/issues/`,
@@ -76,7 +94,37 @@ export async function getIssuesInPlane() {
     if (response.status === 200) {
       console.log(chalk.green(`    ✅ Issues fetched: ${response.data}`));
       console.log("response.data", response.data);
+      return response.data.results;
+    } else {
+      throw new Error(`Unexpected response status: ${response.status}`);
+    }
+  } catch (error) {
+    console.log(chalk.yellow(`    ⚠️  Error: ${error.message}`));
+  }
+}
 
+/**
+ * Rename an issue in Plane
+ * @param {Object} issueData - Issue data with ID
+ * @returns {Object} Updated issue response
+ */
+export async function renameIssue(issueData) {
+  try {
+    const response = await axios.patch(
+      `${process.env.PLANE_API_BASE_URL}/api/v1/workspaces/${process.env.PLANE_WORKSPACE_SLUG}/projects/${process.env.PLANE_PROJECT_ID}/issues/${issueData.id}`,
+      {
+        name: "BE-MONITOR",
+      },
+      {
+        headers: {
+          "X-API-Key": process.env.PLANE_API_KEY,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      console.log(chalk.green(`    ✅ Issue renamed: ${response.data}`));
       return response.data;
     } else {
       throw new Error(`Unexpected response status: ${response.status}`);
@@ -84,4 +132,8 @@ export async function getIssuesInPlane() {
   } catch (error) {
     console.log(chalk.yellow(`    ⚠️  Error: ${error.message}`));
   }
+}
+
+function validateIssuePriority(priority) {
+  return ["none", "low", "medium", "high", "urgent"].includes(priority);
 }

@@ -1,3 +1,3 @@
-## Phase 1: Nền tảng & Khởi tạo kiến trúc cơ bản
+## Phase 1: [BE-CORE] Test unique model
 
-- [ ] [high] Phát triển Auth Module (JWT, OTP, RBAC, login theo tenant) [Xem chi tiết](./Phase1/authentication.md)
+- [ ] [High] Phát triển Auth Module (JWT, OTP, RBAC, login theo tenant) [Xem chi tiết](./Phase1/authentication.md)

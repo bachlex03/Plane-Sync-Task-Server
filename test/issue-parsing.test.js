@@ -7,22 +7,19 @@ import {
   parseMarkdownIssues,
 } from "../src/utils/markdown-parser.js";
 import { extractIssues, validateIssue } from "../src/utils/issue-extractor.js";
-import {
-  createIssueInPlane,
-  getIssuesInPlane,
-} from "../src/utils/plane-api.js";
+import { createIssue, getIssues, renameIssue } from "../src/apis/issue.api.js";
 
 const checklistFolder = path.resolve(process.cwd(), "checklist-example");
 const markdownFile = path.resolve(checklistFolder, "checklist-example.md");
 
-async function testMarkdownParsing() {
-  console.log(chalk.blue.bold("🧪 Testing Markdown Parsing with Remark"));
+async function issueParsingTest() {
+  console.log(chalk.blue.bold("🧪 Test Markdown Parsing with Remark"));
   console.log(chalk.gray("==========================================\n"));
 
   // Test 1: Basic AST parsing
   let ast = null;
 
-  console.log(chalk.blue("\n📄 Test 1: Basic AST parsing..."));
+  console.log(chalk.blue("\n📄 Test 1: Test Basic AST parsing..."));
   try {
     ast = await markdownParser(markdownFile);
     console.log(chalk.green("✅ AST parsing successful"));
@@ -35,7 +32,7 @@ async function testMarkdownParsing() {
   }
 
   // Test 2: Issue extraction
-  console.log(chalk.blue("\n📋 Test 2: Issue extraction..."));
+  console.log(chalk.blue("\n📋 Test 2: Test Issue extraction..."));
   try {
     const issues = extractIssues(ast);
     console.log(chalk.green("✅ Issue extraction successful"));
@@ -61,7 +58,7 @@ async function testMarkdownParsing() {
 
   // Test 3: Issue validation
   let issues = null;
-  console.log(chalk.blue("\n✅ Test 3: Issue validation..."));
+  console.log(chalk.blue("\n✅ Test 3: Test Issue validation..."));
   try {
     const issues = extractIssues(ast);
 
@@ -86,7 +83,9 @@ async function testMarkdownParsing() {
   }
 
   // Test 4: Complete markdown issue parsing
-  console.log(chalk.blue("\n🚀 Test 4: Complete markdown issue parsing..."));
+  console.log(
+    chalk.blue("\n🚀 Test 4: Test Complete markdown issue parsing...")
+  );
   try {
     issues = await parseMarkdownIssues(markdownFile);
     console.log(chalk.green("✅ Complete parsing successful"));
@@ -120,28 +119,59 @@ async function testMarkdownParsing() {
   }
 
   // Test 5: Test with different issue formats
-  console.log(chalk.blue("\n🔧 Test 5: Testing different issue formats..."));
+  console.log(chalk.blue("\n🔧 Test 5: Test with different issue formats..."));
   await testDifferentIssueFormats();
 
-  // Test 6: Test Plane API integration (POST)
-  console.log(chalk.blue("\n🚀 Test 6: Testing Plane API integration..."));
+  // Test 6: Test Plane API integration (POST Create Issue)
+  const byPassCreateIssue = false;
+  if (!byPassCreateIssue) {
+    console.log(
+      chalk.blue(
+        "\n🚀 Test 6: Test Plane API integration (POST Create Issue)..."
+      )
+    );
+    try {
+      await createIssue(issues[0]);
+      console.log(chalk.green("✅ Plane API integration successful"));
+    } catch (error) {
+      console.log(chalk.red("❌ Plane API integration failed:"), error.message);
+      return;
+    }
+  } else {
+    console.log(chalk.green("✅ Plane API integration skipped"));
+  }
+
+  // Test 7: Test Plane API integration (GET Issues)
+  let issuesList = null;
+  console.log(
+    chalk.blue("\n🚀 Test 7: Test Plane API integration (GET Issues)...")
+  );
   try {
-    await createIssueInPlane(issues[0]);
+    issuesList = await getIssues();
     console.log(chalk.green("✅ Plane API integration successful"));
   } catch (error) {
     console.log(chalk.red("❌ Plane API integration failed:"), error.message);
     return;
   }
 
-  // Test 7: Test Plane API integration (GET)
-  // console.log(chalk.blue("\n🚀 Test 7: Testing Plane API integration..."));
-  // try {
-  //   await getIssuesInPlane();
-  //   console.log(chalk.green("✅ Plane API integration successful"));
-  // } catch (error) {
-  //   console.log(chalk.red("❌ Plane API integration failed:"), error.message);
-  //   return;
-  // }
+  // Test 8: Test Plane API integration (PATCH Rename Issue)
+  const byPassRenameIssue = true;
+  if (!byPassRenameIssue) {
+    console.log(
+      chalk.blue(
+        "\n🚀 Test 8: Test Plane API integration (PATCH Rename Issue)..."
+      )
+    );
+    try {
+      await renameIssue(issuesList[0]);
+      console.log(chalk.green("✅ Plane API integration successful"));
+    } catch (error) {
+      console.log(chalk.red("❌ Plane API integration failed:"), error.message);
+      return;
+    }
+  } else {
+    console.log(chalk.green("✅ Plane API integration skipped"));
+  }
 
   console.log(chalk.green.bold("\n🎉 All tests completed!"));
 }
@@ -266,4 +296,4 @@ async function testDifferentIssueFormats() {
   }
 }
 
-testMarkdownParsing();
+issueParsingTest();

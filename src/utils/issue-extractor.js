@@ -116,12 +116,12 @@ function parseIssueText(text) {
   const cleanText = text.replace(/^\[[ x]\]\s*/, "");
 
   // Extract priority indicator
-  const priorityMatch = cleanText.match(/^\[(high|medium|low|urgent)\]\s*/i);
+  const priorityMatch = cleanText.match(/^\[(High|Medium|Low|Urgent)\]\s*/i);
   const priority = priorityMatch ? priorityMatch[1].toLowerCase() : "none";
 
   // Remove priority indicator from text
   const textWithoutPriority = cleanText.replace(
-    /^\[(high|medium|low|urgent)\]\s*/i,
+    /^\[(High|Medium|Low|Urgent)\]\s*/i,
     ""
   );
 
