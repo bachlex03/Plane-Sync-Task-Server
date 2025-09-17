@@ -1,0 +1,316 @@
+---
+globs: docs/Phase*/**/*.md,*-implementation-phases.md
+alwaysApply: false
+---
+
+# Markdown Checklist Structure Definition
+
+This document defines the structure of markdown files that contain project management checklists for the Plane PM Sync system.
+
+## File Pattern
+
+Files matching the pattern `*-implementation-phases.md` contain structured project phases with modules and issues.
+
+## Example Structure
+
+```markdown
+## Phase 1: [BE-CORE] Nền tảng & Khởi tạo kiến trúc cơ bản
+
+- [ ] [High] Xây dựng API Gateway / Load Balancer (Tenant routing, context injection) [Xem chi tiết](./Phase1/api-gateway.md)
+- [x] [High] Phát triển Auth Module (JWT, OTP, RBAC, login theo tenant) [Xem chi tiết](./Phase1/authentication.md)
+- [x] [High] Phát triển Tenant Module (Tenant discovery, dynamic DB connection) [Xem chi tiết](./Phase1/tenants.md)
+- [ ] [High] Phát triển Users Domain [Xem chi tiết](./Phase1/users.md)
+- [ ] [High] Phát triển Patients Domain [Xem chi tiết](./Phase1/patients.md)
+- [ ] [High] Phát triển Branches Domain [Xem chi tiết](./Phase1/branches.md)
+- [ ] [High] Phát triển Form Generator [Xem chi tiết](./Phase1/form-generator.md)
+- [ ] [High] Phát triển File Upload System [Xem chi tiết](./Phase1/file-upload.md)
+- [ ] [High] Xây dựng Audit / Log Service (ghi log hành động người dùng) [Xem chi tiết](./Phase1/audit-log.md)
+- [ ] [Medium] Tạo Shared Layer (constants, enums, error codes, utilities dùng chung) [Xem chi tiết](./Phase1/shared-layer.md)
+- [ ] [Medium] Endpoint /health cho từng module để phục vụ giám sát [Xem chi tiết](./Phase1/health.md)
+- [ ] [Medium] Đảm bảo database isolation per tenant [Xem chi tiết](./Phase1/database-isolation.md)
+- [ ] [High] Thiết kế và triển khai database schema cho Multi-DB per Tenant [Xem chi tiết](./Phase1/database-design.md)
+
+### Phase 1.1: [BE-FRONTEND-API] API cho Frontend Portals
+
+- [ ] [High] Thiết kế API endpoints cho Admin Portal (quản lý tenant, user, RBAC, system config) [Xem chi tiết](./Phase1/admin-portal-api.md)
+- [ ] [High] Thiết kế API endpoints cho Hospital Portal (patients, appointments, medical records, doctors) [Xem chi tiết](./Phase1/hospital-portal-api.md)
+- [ ] [High] Thiết kế API endpoints cho Patient Portal (profile, appointments, prescriptions, lab results) [Xem chi tiết](./Phase1/patient-portal-api.md)
+- [ ] [Medium] Cấu hình CORS và security headers cho multi-portal access [Xem chi tiết](./Phase1/cors-security-config.md)
+- [ ] [Medium] API versioning strategy và backward compatibility [Xem chi tiết](./Phase1/api-versioning.md)
+- [ ] [Medium] OpenAPI/Swagger documentation cho tất cả endpoints [Xem chi tiết](./Phase1/api-documentation.md)
+
+### Phase 1.2: [BE-SHARED-LIBS] Shared Libraries Support
+
+- [ ] [High] API endpoints cho libs/web-ui (theme config, component data, i18n) [Xem chi tiết](./Phase1/web-ui-api.md)
+- [ ] [High] API endpoints cho libs/web-utils (validation schemas, formatting rules) [Xem chi tiết](./Phase1/web-utils-api.md)
+- [ ] [High] API endpoints cho libs/types (type definitions, enums, constants) [Xem chi tiết](./Phase1/types-api.md)
+- [ ] [Medium] Real-time updates cho shared libraries (WebSocket/SSE) [Xem chi tiết](./Phase1/realtime-updates.md)
+```
+
+## Structure Components
+
+### 1. Module Header
+
+**Pattern**: `## Phase X: [LABEL] Module Name`
+
+**Example**: `## Phase 1: [BE-CORE] Nền tảng & Khởi tạo kiến trúc cơ bản`
+
+**Components**:
+
+- `## Phase 1:` - Module header (level 2 heading)
+- `[BE-CORE]` - **Label** (extracted by label-extractor.js)
+- `Nền tảng & Khởi tạo kiến trúc cơ bản` - **Clean module name** (after removing label)
+
+### 2. Issue Item
+
+**Pattern**: `- [checkbox] [priority] Issue Name [link]`
+
+**Example**: `- [ ] [High] Xây dựng API Gateway / Load Balancer (Tenant routing, context injection) [Xem chi tiết](./Phase1/api-gateway.md)`
+
+**Components**:
+
+- `- [ ]` - **Checkbox** (todo/done status: `[ ]` = todo, `[x]` = done)
+- `[High]` - **Priority** (High/Medium/Low)
+- `Xây dựng API Gateway / Load Balancer (Tenant routing, context injection)` - **Issue name**
+- `[Xem chi tiết](./Phase1/api-gateway.md)` - **Link** to sub-issues
+
+## Parser Integration
+
+The following parsers handle this structure:
+
+1. **Module Extractor** (`src/utils/module-extractor.js`)
+
+   - Detects `## Phase X:` headers
+   - Extracts clean module names (removes labels)
+   - Creates module objects for Plane API
+
+2. **Label Extractor** (`src/utils/label-extractor.js`)
+
+   - Finds `[BE-CORE]`, `[High]`, `[Medium]`, `[Low]` labels
+   - Extracts from headings and issue text
+   - Creates label objects for Plane API
+
+3. **Issue Extractor** (`src/utils/issue-extractor.js`)
+   - Parses checkbox status (`[ ]` vs `[x]`)
+   - Extracts priority levels
+   - Cleans issue names (removes links)
+   - Creates issue objects for Plane API
+
+## Priority Levels
+
+- `[High]` - High priority
+- `[Medium]` - Medium priority
+- `[Low]` - Low priority
+- No priority tag = Default priority
+
+## Checkbox States
+
+- `[ ]` - Todo (not completed)
+- `[x]` - Done (completed)
+
+## 4. Sub-Module Structure
+
+Sub-modules provide a hierarchical organization within main modules, allowing for better categorization and management of related issues.
+
+### Three-Level Hierarchy:
+
+```
+## Phase 1: [BE-CORE] Main Module (Level 1)
+├── Issues (Level 1)
+├── ### Phase 1.1: [BE-FRONTEND-API] Sub-Module (Level 2)
+│   └── Issues (Level 2)
+└── ### Phase 1.2: [BE-SHARED-LIBS] Sub-Module (Level 2)
+    └── Issues (Level 2)
+```
+
+### Example Sub-Module Structure:
+
+```markdown
+## Phase 1: [BE-CORE] Nền tảng & Khởi tạo kiến trúc cơ bản
+
+- [ ] [High] Xây dựng API Gateway / Load Balancer...
+- [ ] [High] Phát triển Auth Module...
+
+### Phase 1.1: [BE-FRONTEND-API] API cho Frontend Portals
+
+- [ ] [High] Thiết kế API endpoints cho Admin Portal (quản lý tenant, user, RBAC, system config) [Xem chi tiết](./Phase1/admin-portal-api.md)
+- [ ] [High] Thiết kế API endpoints cho Hospital Portal (patients, appointments, medical records, doctors) [Xem chi tiết](./Phase1/hospital-portal-api.md)
+- [ ] [High] Thiết kế API endpoints cho Patient Portal (profile, appointments, prescriptions, lab results) [Xem chi tiết](./Phase1/patient-portal-api.md)
+- [ ] [Medium] Cấu hình CORS và security headers cho multi-portal access [Xem chi tiết](./Phase1/cors-security-config.md)
+- [ ] [Medium] API versioning strategy và backward compatibility [Xem chi tiết](./Phase1/api-versioning.md)
+- [ ] [Medium] OpenAPI/Swagger documentation cho tất cả endpoints [Xem chi tiết](./Phase1/api-documentation.md)
+
+### Phase 1.2: [BE-SHARED-LIBS] Shared Libraries Support
+
+- [ ] [High] API endpoints cho libs/web-ui (theme config, component data, i18n) [Xem chi tiết](./Phase1/web-ui-api.md)
+- [ ] [High] API endpoints cho libs/web-utils (validation schemas, formatting rules) [Xem chi tiết](./Phase1/web-utils-api.md)
+- [ ] [High] API endpoints cho libs/types (type definitions, enums, constants) [Xem chi tiết](./Phase1/types-api.md)
+- [ ] [Medium] Real-time updates cho shared libraries (WebSocket/SSE) [Xem chi tiết](./Phase1/realtime-updates.md)
+```
+
+### Sub-Module Components:
+
+#### **Sub-Module Header Pattern:**
+
+**Format**: `### Phase X.Y: [LABEL] Sub-Module Name`
+
+**Example**: `### Phase 1.1: [BE-FRONTEND-API] API cho Frontend Portals`
+
+**Components**:
+
+- `### Phase 1.1:` - Sub-module header (level 3 heading)
+- `[BE-FRONTEND-API]` - **Label** (extracted by label-extractor.js)
+- `API cho Frontend Portals` - **Clean sub-module name** (after removing label)
+
+#### **Hierarchical Relationships:**
+
+- **Parent Module**: `## Phase 1: [BE-CORE] Nền tảng & Khởi tạo kiến trúc cơ bản`
+- **Sub-Modules**:
+  - `### Phase 1.1: [BE-FRONTEND-API] API cho Frontend Portals`
+  - `### Phase 1.2: [BE-SHARED-LIBS] Shared Libraries Support`
+
+### Parser Requirements for Sub-Modules:
+
+1. **Detect Sub-Module Headers**: Recognize `### Phase X.Y:` pattern
+2. **Extract Sub-Module Labels**: Parse `[LABEL]` from sub-module headers
+3. **Clean Sub-Module Names**: Remove labels to get clean names
+4. **Maintain Hierarchy**: Link sub-modules to their parent modules
+5. **Group Issues**: Associate issues with their respective sub-modules
+6. **Handle Both Levels**: Process both main modules and sub-modules
+
+### 3. Sub-Issue Structure
+
+Sub-issues are found in linked markdown files (e.g., `[Xem chi tiết](./Phase1/authentication.md)`). These files contain detailed breakdowns of main issues.
+
+#### Example Sub-Issue File Structure:
+
+```markdown
+## 1. Những việc đã làm
+
+- [ ] [High] (Điền các task đã hoàn thành tại đây, ví dụ: Đã có JWT, RBAC, multi-tenant guard, mã hóa mật khẩu, rate limit...)
+
+## 2. Những việc cần làm
+
+### Authentication
+
+- [ ] [High] Đăng nhập đa phương thức (OAuth2, SSO) nếu cần tích hợp với hệ thống y tế quốc gia
+- [ ] [High] Xác thực 2 lớp (2FA/OTP) cho bác sĩ, admin (qua SMS/email)
+- [ ] [High] Quản lý session (đa thiết bị, revoke, tracking)
+
+### Authorization
+
+- [ ] [High] Mapping permission vào từng role (DB hoặc hardcode, nên dùng DB để linh hoạt)
+- [ ] [High] Super admin cross-tenant (role SuperAdmin, kiểm tra ở guard)
+
+### User Management
+
+- [ ] [High] Đăng ký, tạo user, cập nhật, xóa, khóa/mở khóa tài khoản (API/UI cho admin bệnh viện)
+- [ ] [High] Đổi mật khẩu, quên mật khẩu (email/SMS)
+- [ ] [Medium] Quản lý thông tin user (profile, avatar, contact info)
+- [ ] [High] Gán/xóa vai trò, permission cho user qua API
+
+### Audit & Security
+
+- [ ] [High] Log chi tiết mọi hành động đăng nhập, thay đổi quyền, thay đổi thông tin user (audit log, immutable)
+- [ ] [High] Lưu lịch sử đăng nhập, IP, thiết bị
+- [ ] [High] Cảnh báo khi có hành động bất thường (login lạ, xuất nhiều dữ liệu...)
+- [ ] [High] Đảm bảo tuân thủ HIPAA/GDPR ở mọi thao tác (không được sửa log, lưu log đủ 6 năm, kiểm soát xuất dữ liệu lớn)
+
+### Đặc thù cho EMR
+
+- [ ] [High] Granular Permission (phân quyền chi tiết theo loại dữ liệu, phòng ban, hành động)
+- [ ] [High] Break-glass/Emergency Access (truy cập khẩn cấp, log & cảnh báo admin)
+- [ ] [Medium] Consent Management (quản lý sự đồng ý của bệnh nhân, lưu lịch sử consent)
+- [ ] [High] Audit Trail & Truy vết (log mọi chỉnh sửa hồ sơ, ghi lại thông tin cũ/mới, ai thao tác, lúc nào)
+- [ ] [Medium] Session & Device Management (hiển thị thiết bị đăng nhập, cho phép admin logout từ xa, giới hạn session)
+- [ ] [Medium] Data Masking & Redaction (ẩn/mask thông tin nhạy cảm với user không đủ quyền)
+
+### Tuân thủ quy định y tế (HIPAA, GDPR, ...)
+
+- [ ] [High] Đảm bảo chỉ user được ủy quyền mới truy cập dữ liệu bệnh nhân
+- [ ] [High] Audit log không được phép chỉnh sửa/xóa, lưu đủ 6 năm
+- [ ] [High] Cảnh báo khi có truy cập bất thường hoặc truy cập khối lượng lớn dữ liệu
+- [ ] [Medium] Cho phép bệnh nhân yêu cầu xem/xóa dữ liệu cá nhân
+- [ ] [Medium] Quản lý consent rõ ràng, minh bạch
+
+## 3. Bổ sung checklist nâng cao
+
+- [ ] [Medium] Hỗ trợ xác thực đa phương thức (OIDC, SAML, LDAP nếu cần)
+- [ ] [Medium] Cho phép bật/tắt 2FA bắt buộc theo vai trò (ex: bác sĩ điều trị cần 2FA, điều dưỡng thì không)
+- [ ] [Medium] API import/export user, đồng bộ user với hệ thống ngoài (HIS, HRM, ...)
+- [ ] [Medium] Kiểm thử tải cao (Load Test) cho login & session
+- [ ] [Medium] Test isolation dữ liệu giữa các tenant (test backend)
+- [ ] [Medium] Ghi chú kỹ quyền audit cần tuân thủ chuẩn ISO 27799 / HIPAA về bảo mật y tế
+
+## 4. Quy trình kiểm tra & xác thực chất lượng module Authentication
+
+- [ ] [High] **Kiểm thử tự động:**
+  - [ ] [High] Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan authentication
+  - [ ] [High] Test isolation dữ liệu giữa các tenant (test backend)
+  - [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
+  - [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
+- [ ] [High] **Kiểm thử bảo mật:**
+  - [ ] [High] Test RBAC, ABAC, phân quyền per-tenant, cross-tenant
+  - [ ] [High] Test middleware auth, mTLS, tenant isolation, brute force
+  - [ ] [High] Test rate limit, audit log, session hijack, token revoke
+  - [ ] [High] Test compliance: audit log immutable, retention, data masking, HIPAA/GDPR
+- [ ] [High] **Kiểm thử hiệu năng:**
+  - [ ] [High] Benchmark login, refresh token, revoke, cross-tenant
+  - [ ] [High] Benchmark theo tenant size (lớn/vừa/nhỏ), schema khác nhau
+  - [ ] [High] Benchmark khi nhiều user thao tác đồng thời (load test, stress test)
+  - [ ] [Medium] Benchmark queue, job async, background task liên quan authentication
+- [ ] [High] **Kiểm thử migration, rollback, versioning:**
+  - [ ] [High] Test migration schema auth, rollback, zero-downtime
+  - [ ] [High] Test versioning API, backward compatibility
+- [ ] [High] **Kiểm thử CI/CD & alert:**
+  - [ ] [High] Tích hợp coverage, benchmark, mutation test vào pipeline CI/CD
+  - [ ] [Medium] Tự động comment cảnh báo PR nếu coverage/benchmark giảm
+  - [ ] [Medium] Gửi report coverage/benchmark vào dashboard/dev chat
+- [ ] [High] **Kiểm thử tài liệu:**
+  - [ ] [High] Validate OpenAPI/Swagger, Postman collection, doc lint (Spectral)
+  - [ ] [High] Đảm bảo tài liệu luôn đồng bộ với code, có ví dụ, error, multi-tenant
+- [ ] [High] **Kiểm thử manual & quy trình:**
+  - [ ] [High] Test chuyển user giữa tenant, revoke session, 2FA, SSO, import/export
+  - [ ] [High] Checklist review trước khi release: security, compliance, performance, doc
+```
+
+#### Sub-Issue Parsing Rules:
+
+**What to IGNORE:**
+
+1. **Section Headings**: `## 1. Những việc đã làm`, `### Authentication`
+2. **Parent Issues with Bold**: `- [ ] [High] **Kiểm thử tự động:**`
+3. **Indented Parent Issues**: Issues ending with `:` that have sub-items
+
+**What to EXTRACT:**
+
+1. **Regular Issues**: `- [ ] [High] Đăng nhập đa phương thức (OAuth2, SSO)...`
+2. **Sub-Issues**: `- [ ] [High] Unit test, integration test, e2e test...`
+3. **All Priority Levels**: `[High]`, `[Medium]`, `[Low]`
+
+#### Hierarchical Structure Example:
+
+**Parent Issue (IGNORE):**
+
+```markdown
+- [ ] [High] **Kiểm thử tự động:**
+  - [ ] [High] Unit test, integration test, e2e test...
+  - [ ] [High] Test isolation dữ liệu...
+```
+
+**Sub-Issues (EXTRACT):**
+
+```markdown
+- [ ] [High] Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan authentication
+- [ ] [High] Test isolation dữ liệu giữa các tenant (test backend)
+- [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
+- [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
+```
+
+#### Parser Requirements:
+
+1. **Skip Parent Issues**: Ignore issues ending with `:` and having indented children
+2. **Extract Sub-Issues**: Parse indented issues under parent issues
+3. **Handle Indentation**: Recognize 2-space indentation for sub-issues
+4. **Maintain Hierarchy**: Link sub-issues to their parent issues
+5. **Ignore Headings**: Skip all section headings (`##`, `###`)
