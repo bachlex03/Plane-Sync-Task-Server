@@ -4,12 +4,7 @@ import "dotenv/config";
 
 import { markdownParser } from "../src/utils/markdown-parser.js";
 import { extractLabels, validateLabel } from "../src/utils/label-extractor.js";
-import {
-  createLabel,
-  getLabels,
-  isLabelNameUnique,
-  createLabelWithUniqueName,
-} from "../src/apis/label.api.js";
+import { createLabel, getLabels } from "../src/apis/label.api.js";
 
 const checklistFolder = path.resolve(process.cwd(), "checklist-example");
 const markdownFile = path.resolve(checklistFolder, "checklist-example.md");
@@ -77,16 +72,10 @@ async function labelParsingTest() {
     return;
   }
 
-  // Test 4: Test with mock data
-  console.log(
-    chalk.blue("\n🔧 Test 4: Testing label detection with mock data...")
-  );
-  await testMockLabelExtraction();
-
-  // Test 5: Test Plane API integration (create label)
-  const byPassCreateLabel = true;
+  // Test 4: Test Plane API integration (create label)
+  const byPassCreateLabel = false;
   if (!byPassCreateLabel) {
-    console.log(chalk.blue("\n🚀 Test 6: Testing Plane API label creation..."));
+    console.log(chalk.blue("\n🚀 Test 4: Testing Plane API label creation..."));
     try {
       const labels = extractLabels(ast);
       if (labels.length > 0) {
@@ -107,8 +96,8 @@ async function labelParsingTest() {
     }
   }
 
-  // Test 6: Test Plane API integration (get labels)
-  console.log(chalk.blue("\n📋 Test 7: Testing Plane API label retrieval..."));
+  // Test 5: Test Plane API integration (get labels)
+  console.log(chalk.blue("\n📋 Test 5: Testing Plane API label retrieval..."));
   try {
     const existingLabels = await getLabels();
     if (existingLabels && existingLabels.length > 0) {
@@ -137,147 +126,6 @@ async function labelParsingTest() {
   }
 
   console.log(chalk.green.bold("\n🎉 All label tests completed!"));
-}
-
-async function testMockLabelExtraction() {
-  const mockAST = {
-    type: "root",
-    children: [
-      {
-        type: "heading",
-        depth: 2,
-        children: [
-          {
-            type: "text",
-            value: "Phase 1: [BE-CORE] Backend Development",
-          },
-        ],
-      },
-      {
-        type: "heading",
-        depth: 2,
-        children: [
-          {
-            type: "text",
-            value: "Phase 2: [FE-CORE] Frontend Development",
-          },
-        ],
-      },
-      {
-        type: "list",
-        children: [
-          {
-            type: "listItem",
-            children: [
-              {
-                type: "paragraph",
-                children: [
-                  {
-                    type: "text",
-                    value: "[ ] [HIGH] [AUTH] Implement user authentication",
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            type: "listItem",
-            children: [
-              {
-                type: "paragraph",
-                children: [
-                  {
-                    type: "text",
-                    value:
-                      "[x] [MEDIUM] [DB] Setup database schema [DETAILS](./db.md)",
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        type: "paragraph",
-        children: [
-          {
-            type: "text",
-            value:
-              "This is a [TEST] label in paragraph text with [MULTIPLE] labels.",
-          },
-        ],
-      },
-    ],
-  };
-
-  try {
-    const mockLabels = extractLabels(mockAST);
-
-    console.log(chalk.green("  ✅ Mock label extraction successful"));
-    console.log(
-      chalk.gray(`  🏷️  Found ${mockLabels.length} label(s) in mock data`)
-    );
-
-    // Validate mock results
-    const expectedLabels = [
-      "BE-CORE",
-      "FE-CORE",
-      "HIGH",
-      "AUTH",
-      "MEDIUM",
-      "DB",
-      "DETAILS", // This comes from the link [DETAILS](./db.md)
-      "TEST",
-      "MULTIPLE",
-    ];
-
-    const extractedLabelNames = mockLabels.map((label) => label.name);
-
-    if (mockLabels.length === expectedLabels.length) {
-      console.log(chalk.green("  ✅ Correct number of labels detected"));
-
-      expectedLabels.forEach((expectedLabel, index) => {
-        if (extractedLabelNames.includes(expectedLabel)) {
-          console.log(
-            chalk.green(`    ✅ Label ${index + 1}: "${expectedLabel}"`)
-          );
-        } else {
-          console.log(
-            chalk.red(`    ❌ Label ${index + 1}: "${expectedLabel}" not found`)
-          );
-        }
-      });
-    } else {
-      console.log(
-        chalk.red(
-          `    ❌ Expected ${expectedLabels.length} labels, got ${mockLabels.length}`
-        )
-      );
-      console.log(chalk.gray("    Expected:", expectedLabels));
-      console.log(chalk.gray("    Found:", extractedLabelNames));
-    }
-
-    // Test validation
-    const allValid = mockLabels.every((label) => validateLabel(label));
-    if (allValid) {
-      console.log(chalk.green("  ✅ All mock labels passed validation"));
-    } else {
-      console.log(chalk.red("  ❌ Some mock labels failed validation"));
-    }
-
-    // Test duplicate removal
-    const uniqueLabelNames = [...new Set(extractedLabelNames)];
-    if (uniqueLabelNames.length === extractedLabelNames.length) {
-      console.log(chalk.green("  ✅ No duplicate labels found"));
-    } else {
-      console.log(chalk.yellow("  ⚠️  Duplicate labels detected and removed"));
-    }
-  } catch (error) {
-    console.log(
-      chalk.red("  ❌ Mock label extraction test failed:"),
-      error.message
-    );
-  }
 }
 
 labelParsingTest();
