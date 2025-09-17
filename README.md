@@ -1,1 +1,1 @@
-# Sync task server for Plane project management
+# Sync issue server for Plane project management
