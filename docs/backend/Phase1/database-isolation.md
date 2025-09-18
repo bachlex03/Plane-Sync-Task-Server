@@ -1,6 +1,7 @@
 # Database Isolation & Operations Guide (Enhanced Multi-Tenancy)
 
 > **Lưu ý quan trọng:**
+>
 > - **Gợi ý công nghệ:** Sử dụng Prisma ORM (PostgreSQL, database-per-tenant), Redis (cache, session), Docker Compose (devops), Prometheus/Grafana (monitoring), audit log (custom interceptor + DB), tuân thủ HIPAA/GDPR.
 > - Mỗi tenant (bệnh viện) sử dụng một database độc lập hoàn toàn (database-per-tenant), không dùng chung DB với cột TenantId.
 > - Đảm bảo isolation mạnh, không có single point of failure (SPOF), đáp ứng các tiêu chuẩn bảo mật và compliance y tế (HIPAA, GDPR, ISO 27799).
@@ -237,10 +238,13 @@ apps/backend/
 ```
 
 ## 1. Những việc đã làm
+
 - [ ] [High] (Điền các task đã hoàn thành tại đây, ví dụ: Đã có dynamic DB connection pool, backup/restore tự động từng DB, monitoring health từng DB...)
 
 ## 2. Những việc cần làm
+
 ### Vận hành & Kiểm tra
+
 - [ ] [High] Kiểm tra định kỳ quyền truy cập DB từng tenant (đảm bảo không có user/role nào có quyền truy cập chéo DB)
 - [ ] [High] Tự động health check connection tới tất cả tenant DB mỗi X phút (đảm bảo DB luôn sẵn sàng trước khi app routing request)
 - [ ] [High] Migration versioning riêng cho từng tenant (đồng bộ, rollback độc lập, quản lý version rõ ràng)
@@ -254,6 +258,7 @@ apps/backend/
 - [ ] [High] Disaster recovery: Kế hoạch phục hồi khi mất DB, mất kết nối, mất site
 
 ### Bảo mật & Compliance
+
 - [ ] [High] Log chi tiết thao tác DB của admin/devops (log các lệnh DROP/ALTER/GRANT/DENY, dùng audit plugin hoặc proxy log)
 - [ ] [High] IP Whitelist cho truy cập DB (giới hạn kết nối chỉ từ các IP xác định)
 - [ ] [High] Key rotation định kỳ cho DB password/token (dùng HashiCorp Vault hoặc tương đương)
@@ -264,6 +269,7 @@ apps/backend/
 - [ ] [High] Đáp ứng yêu cầu backup, retention, audit của HIPAA/GDPR (backup định kỳ, lưu trữ đủ thời gian, audit khi cần)
 
 ## 3. Bổ sung checklist nâng cao
+
 - [ ] [Medium] Cho phép tenant chọn DB location (region/zone) để đáp ứng data locality (Việt Nam, EU, US...)
 - [ ] [Medium] Cho phép scale DB riêng theo tenant (Read replica / write splitting) cho tenant lớn
 - [ ] [Medium] Tích hợp event stream (CDC, event sourcing) để đồng bộ dữ liệu tenant với hệ thống ngoài (HIS, ERP, Billing)
@@ -271,31 +277,32 @@ apps/backend/
 - [ ] [Optional] Cho phép tùy biến logic, module, giao diện từng tenant (nên chuẩn hóa core logic, chỉ override phần cấu hình, giao diện, module mở rộng)
 
 ## 4. Quy trình kiểm tra & xác thực chất lượng module Database Isolation
-- [ ] [High] **Kiểm thử tự động:**
-    - [ ] [High] Unit test, integration test, e2e test cho toàn bộ logic tách DB, schema, migration, connection pool
-    - [ ] [High] Test isolation dữ liệu giữa các tenant (test backend)
-    - [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
-    - [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
-- [ ] [High] **Kiểm thử bảo mật:**
-    - [ ] [High] Test RBAC, ABAC, phân quyền truy cập DB, schema
-    - [ ] [High] Test middleware auth, mTLS, tenant isolation
-    - [ ] [High] Test rate limit, audit log, session hijack, token revoke
-    - [ ] [High] Test compliance: audit log immutable, retention, data masking, HIPAA/GDPR
-- [ ] [High] **Kiểm thử hiệu năng:**
-    - [ ] [High] Benchmark kết nối DB, schema switch, cross-tenant
-    - [ ] [High] Benchmark theo tenant size (lớn/vừa/nhỏ), schema khác nhau
-    - [ ] [High] Benchmark khi nhiều tenant thao tác đồng thời (load test, stress test)
-    - [ ] [Medium] Benchmark queue, job async, background task liên quan DB
-- [ ] [High] **Kiểm thử migration, rollback, versioning:**
-    - [ ] [High] Test migration schema DB, rollback, zero-downtime
-    - [ ] [High] Test versioning API, backward compatibility
-- [ ] [High] **Kiểm thử CI/CD & alert:**
-    - [ ] [High] Tích hợp coverage, benchmark, mutation test vào pipeline CI/CD
-    - [ ] [Medium] Tự động comment cảnh báo PR nếu coverage/benchmark giảm
-    - [ ] [Medium] Gửi report coverage/benchmark vào dashboard/dev chat
-- [ ] [High] **Kiểm thử tài liệu:**
-    - [ ] [High] Validate OpenAPI/Swagger, Postman collection, doc lint (Spectral)
-    - [ ] [High] Đảm bảo tài liệu luôn đồng bộ với code, có ví dụ, error, multi-tenant
-- [ ] [High] **Kiểm thử manual & quy trình:**
-    - [ ] [High] Test chuyển tenant, rollback, import/export schema
-    - [ ] [High] Checklist review trước khi release: security, compliance, performance, doc 
+
+- [High] **Kiểm thử tự động:**
+  - [ ] [High] Unit test, integration test, e2e test cho toàn bộ logic tách DB, schema, migration, connection pool
+  - [ ] [High] Test isolation dữ liệu giữa các tenant (test backend)
+  - [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
+  - [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
+- [High] **Kiểm thử bảo mật:**
+  - [ ] [High] Test RBAC, ABAC, phân quyền truy cập DB, schema
+  - [ ] [High] Test middleware auth, mTLS, tenant isolation
+  - [ ] [High] Test rate limit, audit log, session hijack, token revoke
+  - [ ] [High] Test compliance: audit log immutable, retention, data masking, HIPAA/GDPR
+- [High] **Kiểm thử hiệu năng:**
+  - [ ] [High] Benchmark kết nối DB, schema switch, cross-tenant
+  - [ ] [High] Benchmark theo tenant size (lớn/vừa/nhỏ), schema khác nhau
+  - [ ] [High] Benchmark khi nhiều tenant thao tác đồng thời (load test, stress test)
+  - [ ] [Medium] Benchmark queue, job async, background task liên quan DB
+- [High] **Kiểm thử migration, rollback, versioning:**
+  - [ ] [High] Test migration schema DB, rollback, zero-downtime
+  - [ ] [High] Test versioning API, backward compatibility
+- [High] **Kiểm thử CI/CD & alert:**
+  - [ ] [High] Tích hợp coverage, benchmark, mutation test vào pipeline CI/CD
+  - [ ] [Medium] Tự động comment cảnh báo PR nếu coverage/benchmark giảm
+  - [ ] [Medium] Gửi report coverage/benchmark vào dashboard/dev chat
+- [High] **Kiểm thử tài liệu:**
+  - [ ] [High] Validate OpenAPI/Swagger, Postman collection, doc lint (Spectral)
+  - [ ] [High] Đảm bảo tài liệu luôn đồng bộ với code, có ví dụ, error, multi-tenant
+- [High] **Kiểm thử manual & quy trình:**
+  - [ ] [High] Test chuyển tenant, rollback, import/export schema
+  - [ ] [High] Checklist review trước khi release: security, compliance, performance, doc

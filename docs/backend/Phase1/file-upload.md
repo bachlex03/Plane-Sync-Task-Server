@@ -1,6 +1,7 @@
 # File Upload Checklist (Backend, Multi-Tenant EMR)
 
 > **Lưu ý quan trọng:**
+>
 > - **Gợi ý công nghệ:** Sử dụng NestJS (module, guard, service), Prisma ORM (PostgreSQL), Redis (cache), Multer (file upload), cloud storage (S3, GCS, Azure Blob nếu cần), class-validator, Prometheus/Grafana (monitoring), Jest/Supertest (test), Docker Compose (devops), audit log (custom interceptor + DB), tuân thủ HIPAA/GDPR.
 > - Mọi thao tác upload, truy xuất file đều phải kiểm tra context tenant, không để rò rỉ file giữa các tenant.
 > - Audit log phải đầy đủ, immutable, phục vụ truy vết và compliance (HIPAA/GDPR), lưu đủ 6 năm.
@@ -188,11 +189,13 @@ libs/backend/
 ```
 
 ## 1. Những việc đã làm
+
 - [ ] [High] (Điền các task đã hoàn thành tại đây, ví dụ: Đã có API upload file, kiểm tra context tenant, soft delete file...)
 
 ## 2. Những việc cần làm
 
 ### Chức năng API & Service
+
 - [ ] [High] API upload file (POST /file-upload)
 - [ ] [High] API lấy danh sách file (GET /file-upload?paging,filter,search)
 - [ ] [High] API xem/truy xuất file (GET /file-upload/:id/download)
@@ -208,6 +211,7 @@ libs/backend/
 - [ ] [Medium] API lấy lịch sử truy cập, tải về, chỉnh sửa file
 
 ### Phân quyền & Multi-tenant
+
 - [ ] [High] Đảm bảo mọi API chỉ truy cập file thuộc tenant của mình (trừ super admin)
 - [ ] [High] Kiểm tra context tenant ở mọi API/service liên quan file
 - [ ] [High] Phân quyền chi tiết: upload_own_files, delete_any_file, view_sensitive_files, assign_file_to_patient, ...
@@ -216,6 +220,7 @@ libs/backend/
 - [ ] [Medium] Phân quyền theo loại file (ví dụ: chỉ bác sĩ được xem file cận lâm sàng, điều dưỡng chỉ xem tài liệu hành chính...)
 
 ### Bảo mật & Audit
+
 - [ ] [High] Mã hóa file nhạy cảm khi lưu trữ (at-rest) và truyền tải (in-transit)
 - [ ] [High] Log mọi hành động upload, tải về, xóa, truy xuất file (audit log, immutable)
 - [ ] [High] Ghi log hành vi truy cập file nhạy cảm (read audit)
@@ -228,6 +233,7 @@ libs/backend/
 - [ ] [Medium] API cho phép bệnh nhân tự tải về/xóa file cá nhân (theo GDPR)
 
 ### Kiểm thử & tài liệu
+
 - [ ] [High] Unit test, integration test cho toàn bộ API file upload
 - [ ] [High] Test isolation file giữa các tenant (test backend)
 - [ ] [Medium] Test upload file lớn, nhiều file cùng lúc (stress/load test)
@@ -239,6 +245,7 @@ libs/backend/
 - [ ] [Medium] Hướng dẫn sử dụng API cho admin/backend dev
 
 ## 3. Bổ sung checklist nâng cao
+
 - [ ] [Medium] Hỗ trợ upload trực tiếp lên cloud storage (S3, GCS, Azure Blob...) với presigned URL
 - [ ] [Medium] API chuyển file giữa các tenant (chỉ cho phép super admin, audit chặt)
 - [ ] [Medium] API cho phép tagging file (loại tài liệu, nhãn, ... phục vụ tìm kiếm)
@@ -253,32 +260,33 @@ libs/backend/
 - [ ] [Medium] Ghi chú kỹ quyền audit cần tuân thủ chuẩn ISO 27799 / HIPAA về bảo mật y tế
 
 ## 4. Quy trình kiểm tra & xác thực chất lượng module File Upload
-- [ ] [High] **Kiểm thử tự động:**
-    - [ ] [High] Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan file upload
-    - [ ] [High] Test isolation dữ liệu giữa các tenant (test backend)
-    - [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
-    - [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
-- [ ] [High] **Kiểm thử bảo mật:**
-    - [ ] [High] Test RBAC, ABAC, phân quyền upload/download, cross-tenant
-    - [ ] [High] Test middleware auth, mTLS, tenant isolation
-    - [ ] [High] Test rate limit, audit log, session hijack, token revoke
-    - [ ] [High] Test compliance: audit log immutable, retention, data masking, HIPAA/GDPR
-    - [ ] [High] Test kiểm soát loại file, kích thước, virus scan
-- [ ] [High] **Kiểm thử hiệu năng:**
-    - [ ] [High] Benchmark upload/download file, batch upload, cross-tenant
-    - [ ] [High] Benchmark theo tenant size (lớn/vừa/nhỏ), schema khác nhau
-    - [ ] [High] Benchmark khi nhiều user thao tác đồng thời (load test, stress test)
-    - [ ] [Medium] Benchmark queue, job async, background task liên quan file
-- [ ] [High] **Kiểm thử migration, rollback, versioning:**
-    - [ ] [High] Test migration schema file, rollback, zero-downtime
-    - [ ] [High] Test versioning API, backward compatibility
-- [ ] [High] **Kiểm thử CI/CD & alert:**
-    - [ ] [High] Tích hợp coverage, benchmark, mutation test vào pipeline CI/CD
-    - [ ] [Medium] Tự động comment cảnh báo PR nếu coverage/benchmark giảm
-    - [ ] [Medium] Gửi report coverage/benchmark vào dashboard/dev chat
-- [ ] [High] **Kiểm thử tài liệu:**
-    - [ ] [High] Validate OpenAPI/Swagger, Postman collection, doc lint (Spectral)
-    - [ ] [High] Đảm bảo tài liệu luôn đồng bộ với code, có ví dụ, error, multi-tenant
-- [ ] [High] **Kiểm thử manual & quy trình:**
-    - [ ] [High] Test upload/download, rollback, import/export file
-    - [ ] [High] Checklist review trước khi release: security, compliance, performance, doc 
+
+- [High] **Kiểm thử tự động:**
+  - [ ] [High] Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan file upload
+  - [ ] [High] Test isolation dữ liệu giữa các tenant (test backend)
+  - [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
+  - [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
+- [High] **Kiểm thử bảo mật:**
+  - [ ] [High] Test RBAC, ABAC, phân quyền upload/download, cross-tenant
+  - [ ] [High] Test middleware auth, mTLS, tenant isolation
+  - [ ] [High] Test rate limit, audit log, session hijack, token revoke
+  - [ ] [High] Test compliance: audit log immutable, retention, data masking, HIPAA/GDPR
+  - [ ] [High] Test kiểm soát loại file, kích thước, virus scan
+- [High] **Kiểm thử hiệu năng:**
+  - [ ] [High] Benchmark upload/download file, batch upload, cross-tenant
+  - [ ] [High] Benchmark theo tenant size (lớn/vừa/nhỏ), schema khác nhau
+  - [ ] [High] Benchmark khi nhiều user thao tác đồng thời (load test, stress test)
+  - [ ] [Medium] Benchmark queue, job async, background task liên quan file
+- [High] **Kiểm thử migration, rollback, versioning:**
+  - [ ] [High] Test migration schema file, rollback, zero-downtime
+  - [ ] [High] Test versioning API, backward compatibility
+- [High] **Kiểm thử CI/CD & alert:**
+  - [ ] [High] Tích hợp coverage, benchmark, mutation test vào pipeline CI/CD
+  - [ ] [Medium] Tự động comment cảnh báo PR nếu coverage/benchmark giảm
+  - [ ] [Medium] Gửi report coverage/benchmark vào dashboard/dev chat
+- [High] **Kiểm thử tài liệu:**
+  - [ ] [High] Validate OpenAPI/Swagger, Postman collection, doc lint (Spectral)
+  - [ ] [High] Đảm bảo tài liệu luôn đồng bộ với code, có ví dụ, error, multi-tenant
+- [High] **Kiểm thử manual & quy trình:**
+  - [ ] [High] Test upload/download, rollback, import/export file
+  - [ ] [High] Checklist review trước khi release: security, compliance, performance, doc

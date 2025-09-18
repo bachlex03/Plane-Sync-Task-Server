@@ -1,6 +1,7 @@
 # Users Checklist (Backend, Multi-Tenant EMR)
 
 > **Lưu ý quan trọng:**
+>
 > - **Gợi ý công nghệ:** Sử dụng NestJS (module, guard, service), Prisma ORM (PostgreSQL), Redis (session, cache), JWT (access/refresh), Passport.js (local, JWT, OAuth2/SSO), bcryptjs (hash password), class-validator, Prometheus/Grafana (monitoring), Jest/Supertest (test), Docker Compose (devops), audit log (custom interceptor + DB), tuân thủ HIPAA/GDPR.
 > - Mọi thao tác với user đều phải kiểm tra context tenant, không để rò rỉ dữ liệu giữa các tenant.
 > - Audit log phải đầy đủ, immutable, phục vụ truy vết và compliance (HIPAA/GDPR), lưu đủ 6 năm.
@@ -185,6 +186,7 @@ libs/backend/
 (Để trống, đã chuyển checklist sang mục 2)
 
 ## 2. Những việc cần làm
+
 - [ ] [High] Đã có UsersController, UsersService, UsersModule.
 - [ ] [High] Đã có API tạo user (POST /users), kiểm tra trùng email theo tenant, validate dữ liệu, hash password.
 - [ ] [High] Đã có API cập nhật user (PATCH /users/:id), kiểm tra quyền, validate, kiểm tra trùng email khi update.
@@ -198,6 +200,7 @@ libs/backend/
 - [ ] [High] Đã log lỗi chi tiết trong service.
 
 ### Chức năng API & Service
+
 - [ ] [High] API đăng ký user mới (nếu cho phép self-signup)
 - [ ] [High] API tạo user bởi admin (POST /users)
 - [ ] [High] API cập nhật thông tin user (PUT/PATCH /users/:id)
@@ -212,6 +215,7 @@ libs/backend/
 - [ ] [Medium] API reset user về trạng thái ban đầu (dành cho admin khôi phục tài khoản nội bộ)
 
 ### Phân quyền & Multi-tenant
+
 - [ ] [High] Gán/xóa vai trò (role) cho user (API/Service)
 - [ ] [High] Gán/xóa permission cho user (nếu cần granular, API/Service)
 - [ ] [High] Đảm bảo mọi API user chỉ truy cập được dữ liệu tenant của mình (trừ super admin)
@@ -221,11 +225,12 @@ libs/backend/
 - [ ] [Medium] Cấu trúc bảng UserTenants (userId, tenantId, roleInTenant, isDefaultTenant)
 - [ ] [High] Rule check tự động: không cho phép user thao tác nếu chưa được gán vào tenant đó
 - [ ] [High] Phân biệt rõ:
-    - [ ] [High] Super Admin: quản lý toàn hệ thống
-    - [ ] [High] Tenant Admin: chỉ quản lý trong tenant
-    - [ ] [Medium] Cross-Tenant Support: user đặc biệt như Kỹ sư kỹ thuật, có thể được gán vào nhiều tenant
+  - [ ] [High] Super Admin: quản lý toàn hệ thống
+  - [ ] [High] Tenant Admin: chỉ quản lý trong tenant
+  - [ ] [Medium] Cross-Tenant Support: user đặc biệt như Kỹ sư kỹ thuật, có thể được gán vào nhiều tenant
 
 ### Bảo mật & Audit
+
 - [ ] [High] Mã hóa mật khẩu (bcrypt/argon2) khi tạo/cập nhật user
 - [ ] [High] Lưu lịch sử đăng nhập, IP, thiết bị (audit log)
 - [ ] [High] Log mọi hành động tạo, sửa, xóa, đổi quyền user (audit log, immutable)
@@ -237,6 +242,7 @@ libs/backend/
 - [ ] [High] Đảm bảo tuân thủ HIPAA/GDPR (không lộ thông tin nhạy cảm, audit log immutable, retention đủ 6 năm)
 
 ### Quản lý session & device
+
 - [ ] [High] Quản lý session đa thiết bị (service, revoke session)
 - [ ] [High] Cho phép admin logout user từ xa (API/service)
 - [ ] [Medium] Hạn chế số lượng session đồng thời (nếu cần, service)
@@ -245,6 +251,7 @@ libs/backend/
 - [ ] [Medium] Hạn chế thao tác từ thiết bị lạ (option cấu hình)
 
 ### Tích hợp & mở rộng
+
 - [ ] [Medium] Hỗ trợ xác thực đa phương thức (OAuth2, SSO, OIDC nếu cần, backend)
 - [ ] [Medium] Hỗ trợ xác thực 2 lớp (2FA/OTP, backend)
 - [ ] [Medium] API import/export user (CSV, Excel, backend)
@@ -255,6 +262,7 @@ libs/backend/
 - [ ] [Medium] Cho phép bật/tắt 2FA bắt buộc theo vai trò (ex: bác sĩ điều trị cần 2FA, điều dưỡng thì không)
 
 ### Kiểm thử & tài liệu
+
 - [ ] [High] Unit test, integration test cho toàn bộ API user
 - [ ] [High] Test isolation dữ liệu giữa các tenant (test backend)
 - [ ] [Medium] Tài liệu API (OpenAPI/Swagger, backend)
@@ -264,35 +272,37 @@ libs/backend/
 - [ ] [Medium] Ghi chú kỹ quyền audit cần tuân thủ chuẩn ISO 27799 / HIPAA về bảo mật y tế
 
 ## 3. Bổ sung checklist nâng cao
+
 - [ ] [Medium] UserSecurityPolicyService: Giao diện trung tâm để quy định bảo mật người dùng theo tenant (session timeout, bắt buộc 2FA, IP restriction…)
 - [ ] [Medium] UserTenantSwitchService: Hỗ trợ user chuyển đổi giữa các bệnh viện (tenant) mình được gán
 
 ## 4. Quy trình kiểm tra & xác thực chất lượng module Users
-- [ ] [High] **Kiểm thử tự động:**
-    - [ ] [High] Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan user
-    - [ ] [High] Test isolation dữ liệu giữa các tenant (test backend)
-    - [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
-    - [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
-- [ ] [High] **Kiểm thử bảo mật:**
-    - [ ] [High] Test RBAC, ABAC, phân quyền per-tenant, cross-tenant
-    - [ ] [High] Test middleware auth, mTLS, tenant isolation
-    - [ ] [High] Test rate limit, brute force, audit log, session hijack, token revoke
-    - [ ] [High] Test compliance: audit log immutable, retention, data masking, HIPAA/GDPR
-- [ ] [High] **Kiểm thử hiệu năng:**
-    - [ ] [High] Benchmark login, session, batch user, cross-tenant, session revoke
-    - [ ] [High] Benchmark theo tenant size (lớn/vừa/nhỏ), schema khác nhau
-    - [ ] [High] Benchmark khi nhiều user thao tác đồng thời (load test, stress test)
-    - [ ] [Medium] Benchmark queue, job async, background task liên quan user
-- [ ] [High] **Kiểm thử migration, rollback, versioning:**
-    - [ ] [High] Test migration schema user, rollback, zero-downtime
-    - [ ] [High] Test versioning API, backward compatibility
-- [ ] [High] **Kiểm thử CI/CD & alert:**
-    - [ ] [High] Tích hợp coverage, benchmark, mutation test vào pipeline CI/CD
-    - [ ] [Medium] Tự động comment cảnh báo PR nếu coverage/benchmark giảm
-    - [ ] [Medium] Gửi report coverage/benchmark vào dashboard/dev chat
-- [ ] [High] **Kiểm thử tài liệu:**
-    - [ ] [High] Validate OpenAPI/Swagger, Postman collection, doc lint (Spectral)
-    - [ ] [High] Đảm bảo tài liệu luôn đồng bộ với code, có ví dụ, error, multi-tenant
-- [ ] [High] **Kiểm thử manual & quy trình:**
-    - [ ] [High] Test chuyển user giữa tenant, revoke session, 2FA, SSO, import/export
-    - [ ] [High] Checklist review trước khi release: security, compliance, performance, doc 
+
+- [High] **Kiểm thử tự động:**
+  - [ ] [High] Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan user
+  - [ ] [High] Test isolation dữ liệu giữa các tenant (test backend)
+  - [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
+  - [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
+- [High] **Kiểm thử bảo mật:**
+  - [ ] [High] Test RBAC, ABAC, phân quyền per-tenant, cross-tenant
+  - [ ] [High] Test middleware auth, mTLS, tenant isolation
+  - [ ] [High] Test rate limit, brute force, audit log, session hijack, token revoke
+  - [ ] [High] Test compliance: audit log immutable, retention, data masking, HIPAA/GDPR
+- [High] **Kiểm thử hiệu năng:**
+  - [ ] [High] Benchmark login, session, batch user, cross-tenant, session revoke
+  - [ ] [High] Benchmark theo tenant size (lớn/vừa/nhỏ), schema khác nhau
+  - [ ] [High] Benchmark khi nhiều user thao tác đồng thời (load test, stress test)
+  - [ ] [Medium] Benchmark queue, job async, background task liên quan user
+- [High] **Kiểm thử migration, rollback, versioning:**
+  - [ ] [High] Test migration schema user, rollback, zero-downtime
+  - [ ] [High] Test versioning API, backward compatibility
+- [High] **Kiểm thử CI/CD & alert:**
+  - [ ] [High] Tích hợp coverage, benchmark, mutation test vào pipeline CI/CD
+  - [ ] [Medium] Tự động comment cảnh báo PR nếu coverage/benchmark giảm
+  - [ ] [Medium] Gửi report coverage/benchmark vào dashboard/dev chat
+- [High] **Kiểm thử tài liệu:**
+  - [ ] [High] Validate OpenAPI/Swagger, Postman collection, doc lint (Spectral)
+  - [ ] [High] Đảm bảo tài liệu luôn đồng bộ với code, có ví dụ, error, multi-tenant
+- [High] **Kiểm thử manual & quy trình:**
+  - [ ] [High] Test chuyển user giữa tenant, revoke session, 2FA, SSO, import/export
+  - [ ] [High] Checklist review trước khi release: security, compliance, performance, doc

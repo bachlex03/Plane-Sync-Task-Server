@@ -47,3 +47,9 @@ This document defines the JSON structure for managing sub issues based on the ma
   ]
 }
 ```
+
+**This is not sub issue**:
+
+```markdown
+- [High] **Kiểm thử tự động:**
+```

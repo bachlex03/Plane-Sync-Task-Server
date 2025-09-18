@@ -1,6 +1,7 @@
 # Branches Checklist (Backend, Multi-Tenant EMR)
 
 > **Lưu ý quan trọng:**
+>
 > - **Gợi ý công nghệ:** Sử dụng NestJS (module, guard, service), Prisma ORM (PostgreSQL), Redis (cache), class-validator, Prometheus/Grafana (monitoring), Jest/Supertest (test), Docker Compose (devops), audit log (custom interceptor + DB), tuân thủ HIPAA/GDPR.
 > - Mọi thao tác với chi nhánh đều phải kiểm tra context tenant, không để rò rỉ dữ liệu giữa các tenant.
 > - Audit log phải đầy đủ, immutable, phục vụ truy vết và compliance (HIPAA/GDPR), lưu đủ 6 năm.
@@ -181,6 +182,7 @@ libs/backend/
 ```
 
 ## 1. Những việc đã làm
+
 - [ ] [High] Đã có BranchesController, BranchesService, BranchesModule.
 - [ ] [High] Đã có API tạo branch (POST /branches), kiểm tra tenant, validate dữ liệu, tạo kèm phòng ban nếu có.
 - [ ] [High] Đã có API cập nhật branch (PATCH /branches/:id), kiểm tra quyền, validate.
@@ -198,6 +200,7 @@ libs/backend/
 ## 2. Những việc cần làm
 
 ### Chức năng API & Service
+
 - [ ] [High] API tạo chi nhánh mới (POST /branches)
 - [ ] [High] API cập nhật thông tin chi nhánh (PUT/PATCH /branches/:id)
 - [ ] [Medium] API đổi mã chi nhánh (branch code), kiểm tra duy nhất & audit
@@ -212,6 +215,7 @@ libs/backend/
 - [ ] [Medium] API gán/di chuyển user giữa các chi nhánh
 
 ### Phân quyền & Multi-tenant
+
 - [ ] [High] Đảm bảo mọi API chỉ truy cập được dữ liệu tenant của mình (trừ super admin)
 - [ ] [High] Ràng buộc chi nhánh phải thuộc tenant hiện tại khi tạo/sửa (tránh super admin thao tác nhầm)
 - [ ] [High] Kiểm tra context tenant ở mọi API/service liên quan chi nhánh
@@ -221,6 +225,7 @@ libs/backend/
 - [ ] [Medium] Check ownership khi sửa/xóa (user chỉ thao tác trên chi nhánh mình được gán)
 
 ### Bảo mật & Audit
+
 - [ ] [High] Log mọi hành động tạo, sửa, xóa, xem chi nhánh (audit log, immutable)
 - [ ] [Medium] Ghi log chi tiết trạng thái trước/sau khi chỉnh sửa chi nhánh (đổi tên, trạng thái, thông tin liên hệ...)
 - [ ] [Medium] Audit API truy cập thông tin chi nhánh, không chỉ khi thao tác thay đổi
@@ -229,6 +234,7 @@ libs/backend/
 - [ ] [High] Đảm bảo tuân thủ HIPAA/GDPR (audit log, quyền truy cập, retention...)
 
 ### Kiểm thử & tài liệu
+
 - [ ] [High] Unit test, integration test cho toàn bộ API chi nhánh
 - [ ] [High] Test isolation dữ liệu giữa các tenant (test backend)
 - [ ] [Medium] Test hành vi khi chi nhánh bị tạm ngưng (suspended): đảm bảo API liên quan bị vô hiệu hóa đúng cách
@@ -236,6 +242,7 @@ libs/backend/
 - [ ] [Medium] Hướng dẫn sử dụng API cho admin/backend dev
 
 ## 3. Bổ sung checklist nâng cao
+
 - [ ] [Medium] API đồng bộ chi nhánh với hệ thống ngoài (HIS, ERP, ... nếu cần)
 - [ ] [Medium] API cho phép gắn metadata, cấu hình riêng cho từng chi nhánh (logo, màu sắc, policy, ... phục vụ UI)
 - [ ] [Medium] API cho phép tạm ngưng/suspend chi nhánh (khóa API, không xóa DB)
@@ -246,31 +253,32 @@ libs/backend/
 - [ ] [Medium] Ghi chú kỹ quyền audit cần tuân thủ chuẩn ISO 27799 / HIPAA về bảo mật y tế
 
 ## 4. Quy trình kiểm tra & xác thực chất lượng module Branches
-- [ ] [High] **Kiểm thử tự động:**
-    - [ ] [High] Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan branch
-    - [ ] [High] Test isolation dữ liệu giữa các tenant (test backend)
-    - [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
-    - [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
-- [ ] [High] **Kiểm thử bảo mật:**
-    - [ ] [High] Test RBAC, ABAC, phân quyền per-tenant, cross-tenant
-    - [ ] [High] Test middleware auth, mTLS, tenant isolation
-    - [ ] [High] Test rate limit, brute force, audit log, session hijack, token revoke
-    - [ ] [High] Test compliance: audit log immutable, retention, data masking, HIPAA/GDPR
-- [ ] [High] **Kiểm thử hiệu năng:**
-    - [ ] [High] Benchmark tạo/sửa/xóa branch, batch update, cross-tenant
-    - [ ] [High] Benchmark theo tenant size (lớn/vừa/nhỏ), schema khác nhau
-    - [ ] [High] Benchmark khi nhiều user thao tác đồng thời (load test, stress test)
-    - [ ] [Medium] Benchmark queue, job async, background task liên quan branch
-- [ ] [High] **Kiểm thử migration, rollback, versioning:**
-    - [ ] [High] Test migration schema branch, rollback, zero-downtime
-    - [ ] [High] Test versioning API, backward compatibility
-- [ ] [High] **Kiểm thử CI/CD & alert:**
-    - [ ] [High] Tích hợp coverage, benchmark, mutation test vào pipeline CI/CD
-    - [ ] [Medium] Tự động comment cảnh báo PR nếu coverage/benchmark giảm
-    - [ ] [Medium] Gửi report coverage/benchmark vào dashboard/dev chat
-- [ ] [High] **Kiểm thử tài liệu:**
-    - [ ] [High] Validate OpenAPI/Swagger, Postman collection, doc lint (Spectral)
-    - [ ] [High] Đảm bảo tài liệu luôn đồng bộ với code, có ví dụ, error, multi-tenant
-- [ ] [High] **Kiểm thử manual & quy trình:**
-    - [ ] [High] Test chuyển branch giữa tenant, rollback, import/export
-    - [ ] [High] Checklist review trước khi release: security, compliance, performance, doc 
+
+- [High] **Kiểm thử tự động:**
+  - [ ] [High] Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan branch
+  - [ ] [High] Test isolation dữ liệu giữa các tenant (test backend)
+  - [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
+  - [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
+- [High] **Kiểm thử bảo mật:**
+  - [ ] [High] Test RBAC, ABAC, phân quyền per-tenant, cross-tenant
+  - [ ] [High] Test middleware auth, mTLS, tenant isolation
+  - [ ] [High] Test rate limit, brute force, audit log, session hijack, token revoke
+  - [ ] [High] Test compliance: audit log immutable, retention, data masking, HIPAA/GDPR
+- [High] **Kiểm thử hiệu năng:**
+  - [ ] [High] Benchmark tạo/sửa/xóa branch, batch update, cross-tenant
+  - [ ] [High] Benchmark theo tenant size (lớn/vừa/nhỏ), schema khác nhau
+  - [ ] [High] Benchmark khi nhiều user thao tác đồng thời (load test, stress test)
+  - [ ] [Medium] Benchmark queue, job async, background task liên quan branch
+- [High] **Kiểm thử migration, rollback, versioning:**
+  - [ ] [High] Test migration schema branch, rollback, zero-downtime
+  - [ ] [High] Test versioning API, backward compatibility
+- [High] **Kiểm thử CI/CD & alert:**
+  - [ ] [High] Tích hợp coverage, benchmark, mutation test vào pipeline CI/CD
+  - [ ] [Medium] Tự động comment cảnh báo PR nếu coverage/benchmark giảm
+  - [ ] [Medium] Gửi report coverage/benchmark vào dashboard/dev chat
+- [High] **Kiểm thử tài liệu:**
+  - [ ] [High] Validate OpenAPI/Swagger, Postman collection, doc lint (Spectral)
+  - [ ] [High] Đảm bảo tài liệu luôn đồng bộ với code, có ví dụ, error, multi-tenant
+- [High] **Kiểm thử manual & quy trình:**
+  - [ ] [High] Test chuyển branch giữa tenant, rollback, import/export
+  - [ ] [High] Checklist review trước khi release: security, compliance, performance, doc

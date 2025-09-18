@@ -233,31 +233,31 @@ libs/backend/
 
 ## 4. Quy trình kiểm tra & xác thực chất lượng module Authentication
 
-- [ ] [High] **Kiểm thử tự động:**
+- [High] **Kiểm thử tự động:**
   - [ ] [High] Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan authentication
   - [ ] [High] Test isolation dữ liệu giữa các tenant (test backend)
   - [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
   - [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
-- [ ] [High] **Kiểm thử bảo mật:**
+- [High] **Kiểm thử bảo mật:**
   - [ ] [High] Test RBAC, ABAC, phân quyền per-tenant, cross-tenant
   - [ ] [High] Test middleware auth, mTLS, tenant isolation, brute force
   - [ ] [High] Test rate limit, audit log, session hijack, token revoke
   - [ ] [High] Test compliance: audit log immutable, retention, data masking, HIPAA/GDPR
-- [ ] [High] **Kiểm thử hiệu năng:**
+- [High] **Kiểm thử hiệu năng:**
   - [ ] [High] Benchmark login, refresh token, revoke, cross-tenant
   - [ ] [High] Benchmark theo tenant size (lớn/vừa/nhỏ), schema khác nhau
   - [ ] [High] Benchmark khi nhiều user thao tác đồng thời (load test, stress test)
   - [ ] [Medium] Benchmark queue, job async, background task liên quan authentication
-- [ ] [High] **Kiểm thử migration, rollback, versioning:**
+- [High] **Kiểm thử migration, rollback, versioning:**
   - [ ] [High] Test migration schema auth, rollback, zero-downtime
   - [ ] [High] Test versioning API, backward compatibility
-- [ ] [High] **Kiểm thử CI/CD & alert:**
+- [High] **Kiểm thử CI/CD & alert:**
   - [ ] [High] Tích hợp coverage, benchmark, mutation test vào pipeline CI/CD
   - [ ] [Medium] Tự động comment cảnh báo PR nếu coverage/benchmark giảm
   - [ ] [Medium] Gửi report coverage/benchmark vào dashboard/dev chat
-- [ ] [High] **Kiểm thử tài liệu:**
+- [High] **Kiểm thử tài liệu:**
   - [ ] [High] Validate OpenAPI/Swagger, Postman collection, doc lint (Spectral)
   - [ ] [High] Đảm bảo tài liệu luôn đồng bộ với code, có ví dụ, error, multi-tenant
-- [ ] [High] **Kiểm thử manual & quy trình:**
+- [High] **Kiểm thử manual & quy trình:**
   - [ ] [High] Test chuyển user giữa tenant, revoke session, 2FA, SSO, import/export
   - [ ] [High] Checklist review trước khi release: security, compliance, performance, doc

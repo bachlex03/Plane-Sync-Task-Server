@@ -1,6 +1,7 @@
 # Tenants Checklist (Multi-Tenant EMR)
 
 > **Lưu ý quan trọng:**
+>
 > - **Gợi ý công nghệ:** Sử dụng NestJS (module, guard, middleware), Prisma ORM (PostgreSQL, database-per-tenant), Redis (cache, session), Docker Compose (devops), Prometheus/Grafana (monitoring), audit log (custom interceptor + DB), Jest/Supertest (test), tuân thủ HIPAA/GDPR.
 > - Hệ thống sử dụng database độc lập cho từng tenant (database-per-tenant), không dùng chung một DB với cột TenantId. Mọi thao tác, migration, backup, restore, monitoring phải thực hiện riêng biệt cho từng DB.
 > - Luôn truyền đúng context tenant cho mọi service, repository, event, job. Không được cache/pool connection sai tenant.
@@ -186,6 +187,7 @@ libs/backend/
 ## 3.Bổ sung checklist nâng cao
 
 ### 1. Tenant Context & Propagation (Runtime & Background)
+
 - [ ] [High] Propagate tenant context cho tất cả background job / scheduled job / event listener
   - [ ] [High] Đảm bảo mọi job, event, queue đều truyền đúng tenant context, tránh chạy nhầm dữ liệu tenant khác (job thường không qua middleware).
   - [ ] [High] Nếu dùng queue (Bull, RabbitMQ...), cần pass tenant context trong job payload hoặc header.
@@ -193,6 +195,7 @@ libs/backend/
   - [ ] [High] Khi gửi webhook/callback/audit log ra hệ thống ngoài, phải ghi rõ tenantId trong payload hoặc header.
 
 ### 2. Tenant Management & Monitoring
+
 - [ ] [Medium] Tenant activity log (cấp hệ thống)
   - [ ] [Medium] Log lại các hoạt động chính: tạo, sửa, khóa tenant, số lần login, request volume...
 - [ ] [Medium] Tenant status auto check (expired, inactive, over quota)
@@ -201,6 +204,7 @@ libs/backend/
   - [ ] [Medium] Khi tạm ngừng dịch vụ tenant (chậm thanh toán...), chỉ khóa API, không xóa DB.
 
 ### 3. Compliance & Audit
+
 - [ ] [High] Mọi thao tác cross-tenant phải log chi tiết (who, what, when, where)
   - [ ] [High] Đủ thông tin để audit về sau. Lưu vào centralized audit log table (append-only).
 - [ ] [High] Tenant isolation test scripts
@@ -209,6 +213,7 @@ libs/backend/
   - [ ] [Medium] Xuất báo cáo các lần super_admin hoặc job truy cập dữ liệu từ tenant khác (theo ngày/tuần).
 
 ### 4. Feature Optional Nhưng Nên Có
+
 - [ ] [Optional] Cho phép mỗi tenant tắt/bật module (feature toggle per tenant)
   - [ ] [Optional] Ví dụ: bệnh viện A không dùng phân khoa, B dùng phân khoa và phân ca trực.
 - [ ] [Optional] API cấu hình metadata mỗi tenant (logo, primary color, form tuỳ biến...)
@@ -217,31 +222,32 @@ libs/backend/
   - [ ] [Optional] Nếu bán theo gói, có thể có giới hạn session, số lượng bác sĩ đang truy cập cùng lúc.
 
 ## 4. Quy trình kiểm tra & xác thực chất lượng module Tenants
-- [ ] [High] **Kiểm thử tự động:**
-    - [ ] [High] Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan tenant
-    - [ ] [High] Test isolation dữ liệu giữa các tenant (test backend)
-    - [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
-    - [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
-- [ ] [High] **Kiểm thử bảo mật:**
-    - [ ] [High] Test RBAC, ABAC, phân quyền quản lý tenant, cross-tenant
-    - [ ] [High] Test middleware auth, mTLS, tenant isolation
-    - [ ] [High] Test rate limit, audit log, session hijack, token revoke
-    - [ ] [High] Test compliance: audit log immutable, retention, data masking, HIPAA/GDPR
-- [ ] [High] **Kiểm thử hiệu năng:**
-    - [ ] [High] Benchmark tạo/sửa/xóa tenant, batch update, cross-tenant
-    - [ ] [High] Benchmark theo tenant size (lớn/vừa/nhỏ), schema khác nhau
-    - [ ] [High] Benchmark khi nhiều tenant thao tác đồng thời (load test, stress test)
-    - [ ] [Medium] Benchmark queue, job async, background task liên quan tenant
-- [ ] [High] **Kiểm thử migration, rollback, versioning:**
-    - [ ] [High] Test migration schema tenant, rollback, zero-downtime
-    - [ ] [High] Test versioning API, backward compatibility
-- [ ] [High] **Kiểm thử CI/CD & alert:**
-    - [ ] [High] Tích hợp coverage, benchmark, mutation test vào pipeline CI/CD
-    - [ ] [Medium] Tự động comment cảnh báo PR nếu coverage/benchmark giảm
-    - [ ] [Medium] Gửi report coverage/benchmark vào dashboard/dev chat
-- [ ] [High] **Kiểm thử tài liệu:**
-    - [ ] [High] Validate OpenAPI/Swagger, Postman collection, doc lint (Spectral)
-    - [ ] [High] Đảm bảo tài liệu luôn đồng bộ với code, có ví dụ, error, multi-tenant
-- [ ] [High] **Kiểm thử manual & quy trình:**
-    - [ ] [High] Test chuyển tenant, rollback, import/export tenant
-    - [ ] [High] Checklist review trước khi release: security, compliance, performance, doc 
+
+- [High] **Kiểm thử tự động:**
+  - [ ] [High] Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan tenant
+  - [ ] [High] Test isolation dữ liệu giữa các tenant (test backend)
+  - [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
+  - [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
+- [High] **Kiểm thử bảo mật:**
+  - [ ] [High] Test RBAC, ABAC, phân quyền quản lý tenant, cross-tenant
+  - [ ] [High] Test middleware auth, mTLS, tenant isolation
+  - [ ] [High] Test rate limit, audit log, session hijack, token revoke
+  - [ ] [High] Test compliance: audit log immutable, retention, data masking, HIPAA/GDPR
+- [High] **Kiểm thử hiệu năng:**
+  - [ ] [High] Benchmark tạo/sửa/xóa tenant, batch update, cross-tenant
+  - [ ] [High] Benchmark theo tenant size (lớn/vừa/nhỏ), schema khác nhau
+  - [ ] [High] Benchmark khi nhiều tenant thao tác đồng thời (load test, stress test)
+  - [ ] [Medium] Benchmark queue, job async, background task liên quan tenant
+- [High] **Kiểm thử migration, rollback, versioning:**
+  - [ ] [High] Test migration schema tenant, rollback, zero-downtime
+  - [ ] [High] Test versioning API, backward compatibility
+- [High] **Kiểm thử CI/CD & alert:**
+  - [ ] [High] Tích hợp coverage, benchmark, mutation test vào pipeline CI/CD
+  - [ ] [Medium] Tự động comment cảnh báo PR nếu coverage/benchmark giảm
+  - [ ] [Medium] Gửi report coverage/benchmark vào dashboard/dev chat
+- [High] **Kiểm thử tài liệu:**
+  - [ ] [High] Validate OpenAPI/Swagger, Postman collection, doc lint (Spectral)
+  - [ ] [High] Đảm bảo tài liệu luôn đồng bộ với code, có ví dụ, error, multi-tenant
+- [High] **Kiểm thử manual & quy trình:**
+  - [ ] [High] Test chuyển tenant, rollback, import/export tenant
+  - [ ] [High] Checklist review trước khi release: security, compliance, performance, doc

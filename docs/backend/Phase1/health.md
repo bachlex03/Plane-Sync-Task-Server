@@ -1,6 +1,7 @@
 # Health Checklist (Backend, Multi-Tenant EMR)
 
 > **Lưu ý quan trọng:**
+>
 > - **Gợi ý công nghệ:** Sử dụng NestJS (module, service), Prometheus (metrics exporter), Grafana (dashboard, alert), Docker Compose (devops), audit log (custom interceptor + DB), tuân thủ HIPAA/GDPR.
 > - Health check phải kiểm tra isolation từng tenant, không để lộ thông tin hệ thống hoặc tenant khác qua API.
 > - Health check phải bảo vệ endpoint (rate limit, auth nếu cần), tránh bị abuse hoặc dò quét.
@@ -161,11 +162,13 @@ libs/backend/
 ```
 
 ## 1. Những việc đã làm
+
 - [ ] [High] (Điền các task đã hoàn thành tại đây, ví dụ: Đã có API health check cơ bản, kiểm tra DB, Redis...)
 
 ## 2. Những việc cần làm
 
 ### Chức năng API & Service
+
 - [ ] [High] API health check tổng quát (GET /health): kiểm tra trạng thái app, DB, cache, storage, queue, external service...
 - [ ] [High] API health check chi tiết (GET /health/detailed): trả về trạng thái từng service, từng tenant (nếu cần)
 - [ ] [High] API kiểm tra trạng thái DB từng tenant (multi-tenant DB health)
@@ -177,6 +180,7 @@ libs/backend/
 - [ ] [High] Health check readiness & liveness endpoint riêng biệt (liveness: container còn chạy, readiness: đã sẵn sàng nhận request)
 
 ### Bảo mật & Audit
+
 - [ ] [High] Phân tầng quyền truy cập health check (public chỉ được /health, /health/detailed chỉ cho admin hoặc hệ thống giám sát nội bộ)
 - [ ] [High] Bảo vệ endpoint health (rate limit, auth, IP whitelist nếu cần)
 - [ ] [High] Log mọi lần health check thất bại (audit log, immutable)
@@ -184,6 +188,7 @@ libs/backend/
 - [ ] [High] Cảnh báo khi có health check bất thường (liên tục fail, latency cao, ...)
 
 ### Monitoring & Alerting
+
 - [ ] [High] Expose structured Prometheus metrics (ví dụ: emr_db_up{tenant="a", db="core"} 1)
 - [ ] [Medium] Thống kê sức khỏe theo nhóm tenant (theo khu vực, bệnh viện lớn nhỏ) để ưu tiên cảnh báo
 - [ ] [High] Tích hợp Prometheus metrics cho health (exporter)
@@ -191,6 +196,7 @@ libs/backend/
 - [ ] [Medium] Ghi log health check định kỳ vào hệ thống monitoring/audit
 
 ### Kiểm thử & tài liệu
+
 - [ ] [High] Unit test, integration test cho toàn bộ API health
 - [ ] [High] Test isolation health check giữa các tenant (test backend)
 - [ ] [Medium] Test resilience: mô phỏng service phụ trợ down, DB mất kết nối, ... kiểm tra health phản hồi đúng
@@ -199,6 +205,7 @@ libs/backend/
 - [ ] [Medium] Hướng dẫn sử dụng API health cho admin/backend dev
 
 ## 3. Bổ sung checklist nâng cao
+
 - [ ] [Medium] API kiểm tra health từng tenant độc lập (dành cho super admin, audit chặt)
 - [ ] [Medium] API kiểm tra health từng module (file upload, patients, users, ...), trả về trạng thái chi tiết
 - [ ] [Medium] API kiểm tra health các node trong cluster (multi-instance, multi-region)
@@ -208,31 +215,32 @@ libs/backend/
 - [ ] [Medium] Ghi chú kỹ quyền audit cần tuân thủ chuẩn ISO 27799 / HIPAA về monitoring hệ thống y tế
 
 ## 4. Quy trình kiểm tra & xác thực chất lượng module Health
-- [ ] [High] **Kiểm thử tự động:**
-    - [ ] [High] Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan healthcheck
-    - [ ] [High] Test isolation dữ liệu, context giữa các tenant
-    - [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
-    - [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
-- [ ] [High] **Kiểm thử bảo mật:**
-    - [ ] [High] Test RBAC, ABAC, phân quyền truy cập health, cross-tenant
-    - [ ] [High] Test middleware auth, mTLS, tenant isolation
-    - [ ] [High] Test rate limit, audit log, session hijack, token revoke
-    - [ ] [High] Test compliance: audit log immutable, retention, data masking, HIPAA/GDPR
-- [ ] [High] **Kiểm thử hiệu năng:**
-    - [ ] [High] Benchmark healthcheck, cross-tenant, multi-service
-    - [ ] [High] Benchmark theo tenant size (lớn/vừa/nhỏ), schema khác nhau
-    - [ ] [High] Benchmark khi nhiều request đồng thời (load test, stress test)
-    - [ ] [Medium] Benchmark queue, job async, background task liên quan health
-- [ ] [High] **Kiểm thử migration, rollback, versioning:**
-    - [ ] [High] Test migration schema health, rollback, zero-downtime
-    - [ ] [High] Test versioning API, backward compatibility
-- [ ] [High] **Kiểm thử CI/CD & alert:**
-    - [ ] [High] Tích hợp coverage, benchmark, mutation test vào pipeline CI/CD
-    - [ ] [Medium] Tự động comment cảnh báo PR nếu coverage/benchmark giảm
-    - [ ] [Medium] Gửi report coverage/benchmark vào dashboard/dev chat
-- [ ] [High] **Kiểm thử tài liệu:**
-    - [ ] [High] Validate OpenAPI/Swagger, Postman collection, doc lint (Spectral)
-    - [ ] [High] Đảm bảo tài liệu luôn đồng bộ với code, có ví dụ, error, multi-tenant
-- [ ] [High] **Kiểm thử manual & quy trình:**
-    - [ ] [High] Test healthcheck các service, rollback, import/export health config
-    - [ ] [High] Checklist review trước khi release: security, compliance, performance, doc 
+
+- [High] **Kiểm thử tự động:**
+  - [ ] [High] Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan healthcheck
+  - [ ] [High] Test isolation dữ liệu, context giữa các tenant
+  - [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
+  - [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
+- [High] **Kiểm thử bảo mật:**
+  - [ ] [High] Test RBAC, ABAC, phân quyền truy cập health, cross-tenant
+  - [ ] [High] Test middleware auth, mTLS, tenant isolation
+  - [ ] [High] Test rate limit, audit log, session hijack, token revoke
+  - [ ] [High] Test compliance: audit log immutable, retention, data masking, HIPAA/GDPR
+- [High] **Kiểm thử hiệu năng:**
+  - [ ] [High] Benchmark healthcheck, cross-tenant, multi-service
+  - [ ] [High] Benchmark theo tenant size (lớn/vừa/nhỏ), schema khác nhau
+  - [ ] [High] Benchmark khi nhiều request đồng thời (load test, stress test)
+  - [ ] [Medium] Benchmark queue, job async, background task liên quan health
+- [High] **Kiểm thử migration, rollback, versioning:**
+  - [ ] [High] Test migration schema health, rollback, zero-downtime
+  - [ ] [High] Test versioning API, backward compatibility
+- [High] **Kiểm thử CI/CD & alert:**
+  - [ ] [High] Tích hợp coverage, benchmark, mutation test vào pipeline CI/CD
+  - [ ] [Medium] Tự động comment cảnh báo PR nếu coverage/benchmark giảm
+  - [ ] [Medium] Gửi report coverage/benchmark vào dashboard/dev chat
+- [High] **Kiểm thử tài liệu:**
+  - [ ] [High] Validate OpenAPI/Swagger, Postman collection, doc lint (Spectral)
+  - [ ] [High] Đảm bảo tài liệu luôn đồng bộ với code, có ví dụ, error, multi-tenant
+- [High] **Kiểm thử manual & quy trình:**
+  - [ ] [High] Test healthcheck các service, rollback, import/export health config
+  - [ ] [High] Checklist review trước khi release: security, compliance, performance, doc

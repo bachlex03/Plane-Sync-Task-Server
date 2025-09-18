@@ -1,6 +1,7 @@
 # Patients Checklist (Backend, Multi-Tenant EMR)
 
 > **Lưu ý quan trọng:**
+>
 > - **Gợi ý công nghệ:** Sử dụng NestJS (module, guard, service), Prisma ORM (PostgreSQL), Redis (cache), class-validator, Prometheus/Grafana (monitoring), Jest/Supertest (test), Docker Compose (devops), audit log (custom interceptor + DB), tuân thủ HIPAA/GDPR.
 > - Mọi thao tác với bệnh nhân đều phải kiểm tra context tenant, không để rò rỉ dữ liệu giữa các tenant.
 > - Audit log phải đầy đủ, immutable, phục vụ truy vết và compliance (HIPAA/GDPR), lưu đủ 6 năm.
@@ -163,11 +164,13 @@ libs/backend/
 ```
 
 ## 1. Những việc đã làm
+
 - [ ] [High] (Điền các task đã hoàn thành tại đây, ví dụ: Đã có API CRUD cơ bản, validate dữ liệu, ...)
 
 ## 2. Những việc cần làm
 
 ### Chức năng API & Service
+
 - [ ] [High] API CRUD bệnh nhân (create, read, update, delete, soft delete)
 - [ ] [High] API tìm kiếm, lọc, phân trang bệnh nhân (search, filter, pagination)
 - [ ] [High] API lấy chi tiết bệnh nhân (by id, by code, by phone, ...)
@@ -180,6 +183,7 @@ libs/backend/
 - [ ] [Optional] API đồng bộ ảnh, tài liệu liên quan bệnh nhân
 
 ### Bảo mật & Audit
+
 - [ ] [High] Phân quyền truy cập API bệnh nhân (RBAC, ABAC, multi-tenant)
 - [ ] [High] Bảo vệ dữ liệu nhạy cảm (masking, encrypt, audit log)
 - [ ] [High] Log mọi thay đổi dữ liệu bệnh nhân (audit log, immutable)
@@ -187,6 +191,7 @@ libs/backend/
 - [ ] [High] Cảnh báo khi có thao tác bất thường (xóa hàng loạt, sửa nhiều trường, ...)
 
 ### Validation & Business Rule
+
 - [ ] [High] Validate dữ liệu đầu vào (họ tên, ngày sinh, số điện thoại, mã bệnh nhân, ...)
 - [ ] [High] Kiểm tra trùng lặp bệnh nhân (theo tên, ngày sinh, số điện thoại, ...)
 - [ ] [High] Kiểm tra quyền thao tác trên từng trường dữ liệu (field-level permission)
@@ -194,12 +199,14 @@ libs/backend/
 - [ ] [Medium] Validate dữ liệu import/export
 
 ### Monitoring & Alerting
+
 - [ ] [High] Expose Prometheus metrics cho API bệnh nhân (số lượng, latency, error rate)
 - [ ] [Medium] Thống kê truy cập, thao tác trên bệnh nhân theo user, role, tenant
 - [ ] [High] Tích hợp alerting khi có lỗi nghiêm trọng (insert/update/delete fail, data loss)
 - [ ] [Medium] Ghi log health check định kỳ vào hệ thống monitoring/audit
 
 ### Kiểm thử & tài liệu
+
 - [ ] [High] Unit test, integration test cho toàn bộ API bệnh nhân
 - [ ] [High] Test isolation dữ liệu giữa các tenant (test backend)
 - [ ] [Medium] Test resilience: mô phỏng lỗi DB, lỗi external API, ... kiểm tra API phản hồi đúng
@@ -208,6 +215,7 @@ libs/backend/
 - [ ] [Medium] Hướng dẫn sử dụng API bệnh nhân cho admin/backend dev
 
 ## 3. Bổ sung checklist nâng cao
+
 - [ ] [Medium] API kiểm tra lịch sử thay đổi từng trường (field-level audit)
 - [ ] [Medium] API kiểm tra quyền truy cập từng trường (field-level access)
 - [ ] [Medium] API kiểm tra health các node trong cluster (multi-instance, multi-region)
@@ -217,31 +225,32 @@ libs/backend/
 - [ ] [Medium] Ghi chú kỹ quyền audit cần tuân thủ chuẩn ISO 27799 / HIPAA về monitoring hệ thống y tế
 
 ## 4. Quy trình kiểm tra & xác thực chất lượng module Patients
-- [ ] [High] **Kiểm thử tự động:**
-    - [ ] [High] Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan patients
-    - [ ] [High] Test isolation dữ liệu, context giữa các tenant
-    - [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
-    - [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
-- [ ] [High] **Kiểm thử bảo mật:**
-    - [ ] [High] Test RBAC, ABAC, phân quyền truy cập patients, cross-tenant
-    - [ ] [High] Test middleware auth, mTLS, tenant isolation
-    - [ ] [High] Test rate limit, audit log, session hijack, token revoke
-    - [ ] [High] Test compliance: audit log immutable, retention, data masking, HIPAA/GDPR
-- [ ] [High] **Kiểm thử hiệu năng:**
-    - [ ] [High] Benchmark patients API, cross-tenant, multi-service
-    - [ ] [High] Benchmark theo tenant size (lớn/vừa/nhỏ), schema khác nhau
-    - [ ] [High] Benchmark khi nhiều request đồng thời (load test, stress test)
-    - [ ] [Medium] Benchmark queue, job async, background task liên quan patients
-- [ ] [High] **Kiểm thử migration, rollback, versioning:**
-    - [ ] [High] Test migration schema patients, rollback, zero-downtime
-    - [ ] [High] Test versioning API, backward compatibility
-- [ ] [High] **Kiểm thử CI/CD & alert:**
-    - [ ] [High] Tích hợp coverage, benchmark, mutation test vào pipeline CI/CD
-    - [ ] [Medium] Tự động comment cảnh báo PR nếu coverage/benchmark giảm
-    - [ ] [Medium] Gửi report coverage/benchmark vào dashboard/dev chat
-- [ ] [High] **Kiểm thử tài liệu:**
-    - [ ] [High] Validate OpenAPI/Swagger, Postman collection, doc lint (Spectral)
-    - [ ] [High] Đảm bảo tài liệu luôn đồng bộ với code, có ví dụ, error, multi-tenant
-- [ ] [High] **Kiểm thử manual & quy trình:**
-    - [ ] [High] Test patients API các service, rollback, import/export patients config
-    - [ ] [High] Checklist review trước khi release: security, compliance, performance, doc 
+
+- [High] **Kiểm thử tự động:**
+  - [ ] [High] Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan patients
+  - [ ] [High] Test isolation dữ liệu, context giữa các tenant
+  - [ ] [High] Test coverage đạt tối thiểu 80% function/branch/line, fail CI nếu không đạt
+  - [ ] [Medium] Mutation test (StrykerJS hoặc tương đương) để đánh giá chất lượng test
+- [High] **Kiểm thử bảo mật:**
+  - [ ] [High] Test RBAC, ABAC, phân quyền truy cập patients, cross-tenant
+  - [ ] [High] Test middleware auth, mTLS, tenant isolation
+  - [ ] [High] Test rate limit, audit log, session hijack, token revoke
+  - [ ] [High] Test compliance: audit log immutable, retention, data masking, HIPAA/GDPR
+- [High] **Kiểm thử hiệu năng:**
+  - [ ] [High] Benchmark patients API, cross-tenant, multi-service
+  - [ ] [High] Benchmark theo tenant size (lớn/vừa/nhỏ), schema khác nhau
+  - [ ] [High] Benchmark khi nhiều request đồng thời (load test, stress test)
+  - [ ] [Medium] Benchmark queue, job async, background task liên quan patients
+- [High] **Kiểm thử migration, rollback, versioning:**
+  - [ ] [High] Test migration schema patients, rollback, zero-downtime
+  - [ ] [High] Test versioning API, backward compatibility
+- [High] **Kiểm thử CI/CD & alert:**
+  - [ ] [High] Tích hợp coverage, benchmark, mutation test vào pipeline CI/CD
+  - [ ] [Medium] Tự động comment cảnh báo PR nếu coverage/benchmark giảm
+  - [ ] [Medium] Gửi report coverage/benchmark vào dashboard/dev chat
+- [High] **Kiểm thử tài liệu:**
+  - [ ] [High] Validate OpenAPI/Swagger, Postman collection, doc lint (Spectral)
+  - [ ] [High] Đảm bảo tài liệu luôn đồng bộ với code, có ví dụ, error, multi-tenant
+- [High] **Kiểm thử manual & quy trình:**
+  - [ ] [High] Test patients API các service, rollback, import/export patients config
+  - [ ] [High] Checklist review trước khi release: security, compliance, performance, doc
