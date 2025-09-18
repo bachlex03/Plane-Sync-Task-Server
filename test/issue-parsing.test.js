@@ -46,7 +46,7 @@ async function issueParsingTest() {
         console.log(chalk.gray(`    Priority: ${issue.priority}`));
         console.log(chalk.gray(`    Completed: ${issue.markdown.isCompleted}`));
         console.log(chalk.gray(`    State: ${issue.state}`));
-        console.log(chalk.gray(`    Raw text: "${issue.markdown.rawText}"`));
+        console.log(chalk.gray(`    Raw text: "${issue.markdown.raw_text}"`));
         console.log();
       });
     }

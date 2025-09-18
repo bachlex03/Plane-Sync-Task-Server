@@ -1,6 +1,6 @@
 /**
  * Module Extractor - Extracts modules from markdown AST
- * Handles heading detection and module structure creation
+ * Handles heading detection and module structure creation with labels
  */
 
 /**
@@ -36,6 +36,30 @@ function extractTextFromHeading(heading) {
 }
 
 /**
+ * Extract labels from text using regex pattern
+ * Labels are in format: [LABEL_NAME]
+ * @param {string} text - Text to extract labels from
+ * @returns {Array} Array of extracted labels
+ */
+function extractLabelsFromText(text) {
+  const labelPattern = /\[([A-Z0-9-_]+)\]/g;
+  const labels = [];
+  let match;
+
+  while ((match = labelPattern.exec(text)) !== null) {
+    const labelName = match[1];
+    if (labelName && labelName.trim().length > 0) {
+      labels.push({
+        name: labelName,
+        raw_text: match[0], // The full [LABEL_NAME] text
+      });
+    }
+  }
+
+  return labels;
+}
+
+/**
  * Remove label patterns from module name
  * Labels are in format: [LABEL_NAME]
  * @param {string} moduleName - Module name with potential labels
@@ -50,48 +74,83 @@ function removeLabelsFromModuleName(moduleName) {
 /**
  * Extract modules from markdown AST
  * @param {Object} ast - The parsed markdown AST
- * @returns {Array} Array of extracted module objects
+ * @returns {Object} JSON object with modules array following the defined structure
  */
-export function extractModules(ast) {
+export function extractModules(ast, sortOrderBase = 100) {
   const modules = [];
 
   walkAST(ast, (node) => {
-    // Detect module headers (## headings)
-    if (node.type === "heading" && node.depth === 2) {
+    // Detect module headers (## headings for main modules, ### for sub-modules)
+    if (node.type === "heading" && (node.depth === 2 || node.depth === 3)) {
       const rawModuleName = extractTextFromHeading(node);
       const cleanModuleName = removeLabelsFromModuleName(rawModuleName);
 
-      const modulePayload = {
-        id: null,
-        created_at: null,
-        updated_at: null,
-        name: cleanModuleName,
-        description: "",
-        description_text: null,
-        description_html: null,
-        start_date: null,
-        target_date: null,
-        status: "planned",
-        view_props: {},
-        sort_order: 55535.0,
-        created_by: null,
-        updated_by: null,
-        project: null,
-        workspace: null,
-        lead: null,
-        members: [],
-        markdown: {
-          rawText: rawModuleName,
-          cleanText: cleanModuleName,
-          level: node.depth,
+      // Extract labels from the raw text
+      const extractedLabels = extractLabelsFromText(rawModuleName);
+
+      // Get the first label (primary label) or create a default one
+      const primaryLabel =
+        extractedLabels.length > 0
+          ? extractedLabels[0]
+          : {
+              name: "DEFAULT",
+              raw_text: "[DEFAULT]",
+            };
+
+      // Create label object following the defined structure
+      const labelObject = {
+        type: "label",
+        name: primaryLabel.name,
+        raw_text: primaryLabel.raw_text,
+        payload: {
+          id: null,
+          created_at: null,
+          updated_at: null,
+          name: primaryLabel.name,
+          color: "#3b82f6", // Default blue color
+          description: "",
+          created_by: null,
+          updated_by: null,
+          project: null,
+          workspace: null,
         },
       };
 
-      modules.push(modulePayload);
+      // Create module object following the defined JSON structure
+      const moduleObject = {
+        raw_text: rawModuleName,
+        clean_text: cleanModuleName,
+        label: labelObject,
+        payload: {
+          id: null,
+          created_at: null,
+          updated_at: null,
+          name: cleanModuleName,
+          description: "",
+          description_text: null,
+          description_html: null,
+          start_date: null,
+          target_date: null,
+          status: "planned",
+          view_props: {},
+          sort_order: sortOrderBase + modules.length, // Use base + current index
+          created_by: null,
+          updated_by: null,
+          project: null,
+          workspace: null,
+          lead: null,
+          members: [],
+        },
+      };
+
+      modules.push(moduleObject);
     }
   });
 
-  return modules;
+  // Return the complete JSON structure as defined in the rules
+  return {
+    modules: modules,
+  };
 }
 
 /**
@@ -102,9 +161,42 @@ export function extractModules(ast) {
 export function validateModule(module) {
   return (
     module &&
-    typeof module.name === "string" &&
-    module.name.trim().length > 0 &&
-    module.markdown &&
-    typeof module.markdown.rawText === "string"
+    typeof module.raw_text === "string" &&
+    module.raw_text.trim().length > 0 &&
+    typeof module.clean_text === "string" &&
+    module.clean_text.trim().length > 0 &&
+    module.label &&
+    module.label.name &&
+    module.payload &&
+    typeof module.payload.name === "string" &&
+    module.payload.name.trim().length > 0
   );
+}
+
+/**
+ * Export modules to JSON file
+ * @param {Object} modulesData - The modules data object
+ * @param {string} outputPath - Path to save the JSON file
+ * @returns {Promise<void>}
+ */
+export async function exportModulesToJSON(modulesData, outputPath) {
+  const fs = await import("fs");
+  const path = await import("path");
+
+  try {
+    // Ensure the directory exists
+    const dir = path.dirname(outputPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    // Write the JSON file with proper formatting
+    const jsonString = JSON.stringify(modulesData, null, 2);
+    fs.writeFileSync(outputPath, jsonString, "utf8");
+
+    console.log(`✅ Modules exported to: ${outputPath}`);
+    console.log(`📦 Total modules: ${modulesData.modules.length}`);
+  } catch (error) {
+    throw new Error(`Failed to export modules to JSON: ${error.message}`);
+  }
 }

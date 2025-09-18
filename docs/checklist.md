@@ -23,7 +23,7 @@
 **Sample Markdown Issue:**
 
 ```markdown
-- [ ] [high] Phát triển Auth Module (JWT, OTP, RBAC, login theo tenant) ([Xem chi tiết](./Phase1/authentication.md))
+- [ ] [high] Phát triển Auth Module (JWT, OTP, RBAC, login theo tenant) [Xem chi tiết](./Phase1/authentication.md)
 ```
 
 **Mapping to Plane API Fields:**

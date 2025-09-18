@@ -113,14 +113,14 @@ function extractTextContent(paragraph) {
  */
 function parseIssueText(text) {
   // Remove leading checkbox
-  const cleanText = text.replace(/^\[[ x]\]\s*/, "");
+  const clean_text = text.replace(/^\[[ x]\]\s*/, "");
 
   // Extract priority indicator
-  const priorityMatch = cleanText.match(/^\[(High|Medium|Low|Urgent)\]\s*/i);
+  const priorityMatch = clean_text.match(/^\[(High|Medium|Low|Urgent)\]\s*/i);
   const priority = priorityMatch ? priorityMatch[1].toLowerCase() : "none";
 
   // Remove priority indicator from text
-  const textWithoutPriority = cleanText.replace(
+  const textWithoutPriority = clean_text.replace(
     /^\[(High|Medium|Low|Urgent)\]\s*/i,
     ""
   );
@@ -164,7 +164,7 @@ function parseIssueText(text) {
     labels: [],
     markdown: {
       isCompleted: isCompleted,
-      rawText: text,
+      raw_text: text,
     },
   };
 }

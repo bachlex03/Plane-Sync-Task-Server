@@ -1,0 +1,429 @@
+<!-- ---
+alwaysApply: true
+---
+
+# JSON Structure for Checklist Management
+
+This document defines the JSON structure for managing modules, sub-modules, issues, and sub-issues based on the markdown structure defined in `define-checklist-markdown.mdc`.
+
+## Complete JSON Structure
+
+```json
+{
+  "modules": [
+    {
+      "type": "main_module",
+      "raw_text": "Phase 1: [BE-CORE] Nền tảng & Khởi tạo kiến trúc cơ bản",
+      "clean_text": "Phase 1: Nền tảng & Khởi tạo kiến trúc cơ bản",
+      "level": 1,
+      "label": {
+        "type": "label",
+        "name": "BE-CORE",
+        "raw_text": "[BE-CORE]",
+        "payload": {
+          "id": null,
+          "created_at": null,
+          "updated_at": null,
+          "name": "BE-CORE",
+          "color": "#3b82f6",
+          "description": "",
+          "created_by": null,
+          "updated_by": null,
+          "project": null,
+          "workspace": null
+        }
+      },
+      "payload": {
+        "id": null,
+        "created_at": null,
+        "updated_at": null,
+        "name": "Phase 1: Nền tảng & Khởi tạo kiến trúc cơ bản",
+        "description": "",
+        "description_text": null,
+        "description_html": null,
+        "start_date": null,
+        "target_date": null,
+        "status": "planned",
+        "view_props": {},
+        "sort_order": 55535.0,
+        "created_by": null,
+        "updated_by": null,
+        "project": null,
+        "workspace": null,
+        "lead": null,
+        "members": []
+      },
+      "issues": [
+        {
+          "type": "main_issue",
+          "name": "Xây dựng API Gateway / Load Balancer (Tenant routing, context injection)",
+          "raw_text": "- [ ] [High] Xây dựng API Gateway / Load Balancer (Tenant routing, context injection) [Xem chi tiết](./Phase1/api-gateway.md)",
+          "is_completed": false,
+          "payload": {
+            "id": null,
+            "created_at": null,
+            "updated_at": null,
+            "estimate_point": null,
+            "name": "Xây dựng API Gateway / Load Balancer (Tenant routing, context injection)",
+            "description_html": "<p></p>",
+            "description_stripped": "",
+            "priority": "high",
+            "start_date": null,
+            "target_date": null,
+            "sequence_id": null,
+            "sort_order": null,
+            "completed_at": null,
+            "archived_at": null,
+            "is_draft": false,
+            "created_by": null,
+            "updated_by": null,
+            "project": null,
+            "workspace": null,
+            "parent": null,
+            "state": null,
+            "assignees": [],
+            "labels": []
+          },
+          "sub_issues": [
+            {
+              "type": "sub_issue",
+              "name": "Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan authentication",
+              "raw_text": "- [ ] [High] Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan authentication",
+              "is_completed": false,
+              "payload": {
+                "id": null,
+                "created_at": null,
+                "updated_at": null,
+                "estimate_point": null,
+                "name": "Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan authentication",
+                "description_html": "<p></p>",
+                "description_stripped": "",
+                "priority": "high",
+                "start_date": null,
+                "target_date": null,
+                "sequence_id": null,
+                "sort_order": null,
+                "completed_at": null,
+                "archived_at": null,
+                "is_draft": false,
+                "created_by": null,
+                "updated_by": null,
+                "project": null,
+                "workspace": null,
+                "parent": null,
+                "state": null,
+                "assignees": [],
+                "labels": []
+              }
+            }
+          ]
+        }
+      ],
+      "sub_modules": [
+        {
+          "type": "sub_module",
+          "raw_text": "Phase 1.1: [BE-FRONTEND-API] API cho Frontend Portals",
+          "clean_text": "Phase 1.1: API cho Frontend Portals",
+          "level": 2,
+          "label": {
+            "type": "label",
+            "name": "BE-FRONTEND-API",
+            "raw_text": "[BE-FRONTEND-API]",
+            "payload": {
+              "id": null,
+              "created_at": null,
+              "updated_at": null,
+              "name": "BE-FRONTEND-API",
+              "color": "#3b82f6",
+              "description": "",
+              "created_by": null,
+              "updated_by": null,
+              "project": null,
+              "workspace": null
+            }
+          },
+          "status": "planned",
+          "payload": {
+            "id": null,
+            "created_at": null,
+            "updated_at": null,
+            "name": "Phase 1.1: API cho Frontend Portals",
+            "description": "",
+            "description_text": null,
+            "description_html": null,
+            "start_date": null,
+            "target_date": null,
+            "status": "planned",
+            "view_props": {},
+            "sort_order": 55535.0,
+            "created_by": null,
+            "updated_by": null,
+            "project": null,
+            "workspace": null,
+            "lead": null,
+            "members": []
+          },
+          "issues": [
+            {
+              "type": "sub_module_issue",
+              "name": "Thiết kế API endpoints cho Admin Portal (quản lý tenant, user, RBAC, system config)",
+              "raw_text": "- [ ] [High] Thiết kế API endpoints cho Admin Portal (quản lý tenant, user, RBAC, system config) [Xem chi tiết](./Phase1/admin-portal-api.md)",
+              "is_completed": false,
+              "payload": {
+                "id": null,
+                "created_at": null,
+                "updated_at": null,
+                "estimate_point": null,
+                "name": "Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan authentication",
+                "description_html": "<p></p>",
+                "description_stripped": "",
+                "priority": "high",
+                "start_date": null,
+                "target_date": null,
+                "sequence_id": null,
+                "sort_order": null,
+                "completed_at": null,
+                "archived_at": null,
+                "is_draft": false,
+                "created_by": null,
+                "updated_by": null,
+                "project": null,
+                "workspace": null,
+                "parent": null,
+                "state": null,
+                "assignees": [],
+                "labels": []
+              },
+              "sub_issues": [
+                {
+                  "type": "sub_issue",
+                  "name": "Thiết kế API endpoints cho Hospital Portal (patients, appointments, medical records, doctors)",
+                  "raw_text": "- [ ] [High] Thiết kế API endpoints cho Hospital Portal (patients, appointments, medical records, doctors) [Xem chi tiết](./Phase1/hospital-portal-api.md)",
+                  "is_completed": false,
+                  "payload": {
+                    "id": null,
+                    "created_at": null,
+                    "updated_at": null,
+                    "estimate_point": null,
+                    "name": "Unit test, integration test, e2e test cho toàn bộ API, service, guard, middleware liên quan authentication",
+                    "description_html": "<p></p>",
+                    "description_stripped": "",
+                    "priority": "high",
+                    "start_date": null,
+                    "target_date": null,
+                    "sequence_id": null,
+                    "sort_order": null,
+                    "completed_at": null,
+                    "archived_at": null,
+                    "is_draft": false,
+                    "created_by": null,
+                    "updated_by": null,
+                    "project": null,
+                    "workspace": null,
+                    "parent": null,
+                    "state": null,
+                    "assignees": [],
+                    "labels": []
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+## JSON Structure Components
+
+### 1. Root Level
+
+- **modules**: Array of main modules containing the entire project structure
+
+### 2. Module Level
+
+- **type**: "main_module" or "sub_module"
+- **raw_text**: Original markdown text (e.g., "Phase 1: [BE-CORE] Nền tảng & Khởi tạo kiến trúc cơ bản")
+- **clean_text**: Clean module name without labels (e.g., "Phase 1: Nền tảng & Khởi tạo kiến trúc cơ bản")
+- **level**: Hierarchy level (1 for main modules, 2 for sub-modules)
+- **label**: Label object with type, name, raw_text, and payload
+- **payload**: Plane API compatible module data structure
+- **issues**: Array of issues belonging to this module
+- **sub_modules**: Array of sub-modules (only for main modules)
+
+### 3. Issue Level
+
+- **type**: "main_issue", "sub_module_issue", or "sub_issue"
+- **name**: Clean issue name (without priority, links)
+- **raw_text**: Original markdown text
+- **is_completed**: Boolean completion status from checkbox
+- **payload**: Plane API compatible issue data structure
+- **sub_issues**: Array of sub-issues (if applicable)
+
+### 4. Label Level
+
+- **type**: "label"
+- **name**: Label name (e.g., "BE-CORE", "High")
+- **raw_text**: Original label text (e.g., "[BE-CORE]", "[High]")
+- **payload**: Plane API compatible label data structure
+
+### 5. Payload Structure
+
+Both modules and issues contain a **payload** object that matches the Plane API structure:
+
+#### Module Payload:
+
+- **id**: Module ID (null for new modules)
+- **name**: Clean module name
+- **description**: Module description
+- **status**: Module status ("planned", "in_progress", "completed")
+- **sort_order**: Display order
+- **timestamps**: created_at, updated_at
+- **relationships**: project, workspace, lead, members
+
+#### Issue Payload:
+
+- **id**: Issue ID (null for new issues)
+- **name**: Clean issue name
+- **description_html**: HTML description
+- **description_stripped**: Plain text description
+- **priority**: Issue priority ("high", "medium", "low", "none")
+- **state**: Issue state (null for new issues)
+- **timestamps**: created_at, updated_at, completed_at
+- **relationships**: project, workspace, parent, assignees, labels
+
+## Usage Examples
+
+### Creating a New Main Module
+
+```json
+{
+  "type": "main_module",
+  "raw_text": "Phase 2: [FE-CORE] Frontend Development",
+  "clean_text": "Phase 2: Frontend Development",
+  "level": 1,
+  "label": {
+    "type": "label",
+    "name": "FE-CORE",
+    "raw_text": "[FE-CORE]",
+    "payload": {
+      "id": null,
+      "created_at": null,
+      "updated_at": null,
+      "name": "FE-CORE",
+      "color": "#3b82f6",
+      "description": "",
+      "created_by": null,
+      "updated_by": null,
+      "project": null,
+      "workspace": null
+    }
+  },
+  "payload": {
+    "id": null,
+    "created_at": null,
+    "updated_at": null,
+    "name": "Phase 2: Frontend Development",
+    "description": "",
+    "description_text": null,
+    "description_html": null,
+    "start_date": null,
+    "target_date": null,
+    "status": "planned",
+    "view_props": {},
+    "sort_order": 55535.0,
+    "created_by": null,
+    "updated_by": null,
+    "project": null,
+    "workspace": null,
+    "lead": null,
+    "members": []
+  },
+  "issues": [],
+  "sub_modules": []
+}
+```
+
+### Creating a New Issue
+
+```json
+{
+  "type": "main_issue",
+  "name": "Develop React Components",
+  "raw_text": "- [ ] [Medium] Develop React Components [Xem chi tiết](./Phase2/components.md)",
+  "is_completed": false,
+  "payload": {
+    "id": null,
+    "created_at": null,
+    "updated_at": null,
+    "estimate_point": null,
+    "name": "Develop React Components",
+    "description_html": "<p></p>",
+    "description_stripped": "",
+    "priority": "medium",
+    "start_date": null,
+    "target_date": null,
+    "sequence_id": null,
+    "sort_order": null,
+    "completed_at": null,
+    "archived_at": null,
+    "is_draft": false,
+    "created_by": null,
+    "updated_by": null,
+    "project": null,
+    "workspace": null,
+    "parent": null,
+    "state": null,
+    "assignees": [],
+    "labels": []
+  },
+  "sub_issues": []
+}
+```
+
+### Creating a Sub-Issue
+
+```json
+{
+  "type": "sub_issue",
+  "name": "Create Button Component",
+  "raw_text": "- [ ] [High] Create Button Component",
+  "is_completed": false,
+  "payload": {
+    "id": null,
+    "created_at": null,
+    "updated_at": null,
+    "estimate_point": null,
+    "name": "Create Button Component",
+    "description_html": "<p></p>",
+    "description_stripped": "",
+    "priority": "high",
+    "start_date": null,
+    "target_date": null,
+    "sequence_id": null,
+    "sort_order": null,
+    "completed_at": null,
+    "archived_at": null,
+    "is_draft": false,
+    "created_by": null,
+    "updated_by": null,
+    "project": null,
+    "workspace": null,
+    "parent": null,
+    "state": null,
+    "assignees": [],
+    "labels": []
+  }
+}
+```
+
+## Benefits of This Structure
+
+1. **Hierarchical Organization**: Clear parent-child relationships
+2. **Flexible Labeling**: Support for multiple labels per item
+3. **Status Tracking**: Complete status management
+4. **File References**: Links to sub-issue files
+5. **Extensible**: Easy to add new fields and types
+6. **Plane API Compatible**: Maps directly to Plane API structure -->

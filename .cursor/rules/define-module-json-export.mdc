@@ -1,0 +1,139 @@
+---
+alwaysApply: true
+---
+
+# JSON Structure for modules
+
+This document defines the JSON structure for managing modules based on the markdown structure defined in `define-checklist-markdown.mdc`.
+
+## Complete JSON Structure
+
+```json
+{
+  "modules": [
+    {
+      "raw_text": "Phase 1: [BE-CORE] Nền tảng & Khởi tạo kiến trúc cơ bản",
+      "clean_text": "Phase 1: Nền tảng & Khởi tạo kiến trúc cơ bản",
+      "label": {
+        "type": "label",
+        "name": "BE-CORE",
+        "raw_text": "[BE-CORE]",
+        "payload": {
+          "id": null,
+          "created_at": null,
+          "updated_at": null,
+          "name": "BE-CORE",
+          "color": "#3b82f6",
+          "description": "",
+          "created_by": null,
+          "updated_by": null,
+          "project": null,
+          "workspace": null
+        }
+      },
+      "payload": {
+        "id": null,
+        "created_at": null,
+        "updated_at": null,
+        "name": "Phase 1: Nền tảng & Khởi tạo kiến trúc cơ bản",
+        "description": "",
+        "description_text": null,
+        "description_html": null,
+        "start_date": null,
+        "target_date": null,
+        "status": "planned",
+        "view_props": {},
+        "sort_order": 55535.0,
+        "created_by": null,
+        "updated_by": null,
+        "project": null,
+        "workspace": null,
+        "lead": null,
+        "members": []
+      }
+    },
+    {
+      "raw_text": "Phase 1.1: [BE-FRONTEND-API] API cho Frontend Portals",
+      "clean_text": "Phase 1.1: API cho Frontend Portals",
+      "label": {
+        "type": "label",
+        "name": "BE-FRONTEND-API",
+        "raw_text": "[BE-FRONTEND-API]",
+        "payload": {
+          "id": null,
+          "created_at": null,
+          "updated_at": null,
+          "name": "BE-FRONTEND-API",
+          "color": "#3b82f6",
+          "description": "",
+          "created_by": null,
+          "updated_by": null,
+          "project": null,
+          "workspace": null
+        }
+      },
+      "payload": {
+        "id": null,
+        "created_at": null,
+        "updated_at": null,
+        "name": "Phase 1.1: API cho Frontend Portals",
+        "description": "",
+        "description_text": null,
+        "description_html": null,
+        "start_date": null,
+        "target_date": null,
+        "status": "planned",
+        "view_props": {},
+        "sort_order": 55535.0,
+        "created_by": null,
+        "updated_by": null,
+        "project": null,
+        "workspace": null,
+        "lead": null,
+        "members": []
+      }
+    },
+    {
+      "raw_text": "Phase 1.1: [BE-FRONTEND-API] API cho Frontend Portals",
+      "clean_text": "Phase 1.1: API cho Frontend Portals",
+      "label": {
+        "type": "label",
+        "name": "BE-FRONTEND-API",
+        "raw_text": "[BE-FRONTEND-API]",
+        "payload": {
+          "id": null,
+          "created_at": null,
+          "updated_at": null,
+          "name": "BE-FRONTEND-API",
+          "color": "#3b82f6",
+          "description": "",
+          "created_by": null,
+          "updated_by": null,
+          "project": null,
+          "workspace": null
+        }
+      },
+      "payload": {
+        "id": null,
+        "created_at": null,
+        "updated_at": null,
+        "name": "Phase 1.1: API cho Frontend Portals",
+        "description": "",
+        "description_text": null,
+        "description_html": null,
+        "start_date": null,
+        "target_date": null,
+        "status": "planned",
+        "view_props": {},
+        "sort_order": 55535.0,
+        "created_by": null,
+        "updated_by": null,
+        "project": null,
+        "workspace": null,
+        "lead": null,
+        "members": []
+      }
+    }
+  ]
+}
+```

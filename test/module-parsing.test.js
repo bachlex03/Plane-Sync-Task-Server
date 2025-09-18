@@ -6,11 +6,18 @@ import { markdownParser } from "../src/utils/markdown-parser.js";
 import {
   extractModules,
   validateModule,
+  exportModulesToJSON,
 } from "../src/utils/module-extractor.js";
 import { createModule, getModules } from "../src/apis/module.api.js";
 
-const checklistFolder = path.resolve(process.cwd(), "checklist-example");
-const markdownFile = path.resolve(checklistFolder, "checklist-example.md");
+const docsPath = path.resolve(process.cwd(), "docs");
+const backendPath = path.resolve(docsPath, "backend");
+const backendImplementationPhasesPath = path.resolve(
+  backendPath,
+  "backend-implementation-phases.md"
+);
+
+const SORT_ORDER = 100;
 
 async function moduleParsingTest() {
   console.log(chalk.blue.bold("🧪 Testing Module Extraction from Markdown"));
@@ -21,7 +28,7 @@ async function moduleParsingTest() {
 
   console.log(chalk.blue("\n📄 Test 1: Basic AST parsing..."));
   try {
-    ast = await markdownParser(markdownFile);
+    ast = await markdownParser(backendImplementationPhasesPath);
     console.log(chalk.green("✅ AST parsing successful"));
     console.log(chalk.gray("AST type:", ast.type));
     console.log(chalk.gray("Children count:", ast.children?.length || 0));
@@ -33,7 +40,8 @@ async function moduleParsingTest() {
   // Test 2: Module extraction
   console.log(chalk.blue("\n📦 Test 2: Module extraction..."));
   try {
-    const modules = extractModules(ast);
+    const result = extractModules(ast, SORT_ORDER);
+    const modules = result.modules;
     console.log(chalk.green("✅ Module extraction successful"));
     console.log(chalk.gray("Extracted modules count:", modules.length));
 
@@ -41,13 +49,17 @@ async function moduleParsingTest() {
       console.log(chalk.yellow("\n📦 Extracted modules:"));
       modules.forEach((module, index) => {
         console.log(chalk.cyan(`  Module ${index + 1}:`));
-        console.log(chalk.white(`    Name: "${module.name}"`));
-        console.log(chalk.white(`    Description: "${module.description}"`));
-        console.log(chalk.white(`    Status: ${module.status}`));
-        console.log(chalk.gray(`    Raw Text: "${module.markdown.rawText}"`));
+        console.log(chalk.white(`    Name: "${module.payload.name}"`));
         console.log(
-          chalk.gray(`    Clean Text: "${module.markdown.cleanText}"`)
+          chalk.white(`    Description: "${module.payload.description}"`)
         );
+        console.log(chalk.white(`    Status: ${module.payload.status}`));
+        console.log(chalk.white(`    Label: "${module.label.name}"`));
+        console.log(
+          chalk.white(`    Sort Order: ${module.payload.sort_order}`)
+        );
+        console.log(chalk.gray(`    Raw Text: "${module.raw_text}"`));
+        console.log(chalk.gray(`    Clean Text: "${module.clean_text}"`));
         console.log();
       });
     }
@@ -59,7 +71,8 @@ async function moduleParsingTest() {
   // Test 3: Module validation
   console.log(chalk.blue("\n✅ Test 3: Module validation..."));
   try {
-    const modules = extractModules(ast);
+    const result = extractModules(ast, SORT_ORDER);
+    const modules = result.modules;
     console.log(chalk.green("✅ Module validation test"));
 
     modules.forEach((module, index) => {
@@ -91,7 +104,8 @@ async function moduleParsingTest() {
       chalk.blue("\n🚀 Test 5: Testing Plane API module creation...")
     );
     try {
-      const modules = extractModules(ast);
+      const result = extractModules(ast, SORT_ORDER);
+      const modules = result.modules;
       if (modules.length > 0) {
         const createdModule = await createModule(modules[0]);
         if (createdModule) {
@@ -137,6 +151,17 @@ async function moduleParsingTest() {
       chalk.red("❌ Plane API module retrieval failed:"),
       error.message
     );
+  }
+
+  // Test 7: Test JSON export
+  console.log(chalk.blue("\n💾 Test 7: Testing JSON export..."));
+  try {
+    const result = extractModules(ast, SORT_ORDER);
+    const outputPath = path.resolve(process.cwd(), "output", "modules.json");
+    await exportModulesToJSON(result, outputPath);
+    console.log(chalk.green("✅ JSON export successful"));
+  } catch (error) {
+    console.log(chalk.red("❌ JSON export failed:"), error.message);
   }
 
   console.log(chalk.green.bold("\n🎉 All module tests completed!"));
@@ -190,7 +215,8 @@ async function testMockModuleExtraction() {
   };
 
   try {
-    const mockModules = extractModules(mockAST);
+    const mockResult = extractModules(mockAST, SORT_ORDER);
+    const mockModules = mockResult.modules;
 
     console.log(chalk.green("  ✅ Mock module extraction successful"));
     console.log(
@@ -209,15 +235,15 @@ async function testMockModuleExtraction() {
 
       mockModules.forEach((module, index) => {
         const expected = expectedModules[index];
-        if (module.name === expected) {
+        if (module.payload.name === expected) {
           console.log(
-            chalk.green(`    ✅ Module ${index + 1}: "${module.name}"`)
+            chalk.green(`    ✅ Module ${index + 1}: "${module.payload.name}"`)
           );
         } else {
           console.log(
             chalk.red(
               `    ❌ Module ${index + 1}: Expected "${expected}", got "${
-                module.name
+                module.payload.name
               }"`
             )
           );

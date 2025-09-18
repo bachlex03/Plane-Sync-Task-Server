@@ -40,7 +40,7 @@ async function labelParsingTest() {
         console.log(chalk.cyan(`  Label ${index + 1}:`));
         console.log(chalk.white(`    Name: "${label.name}"`));
         console.log(chalk.white(`    Color: ${label.color}`));
-        console.log(chalk.white(`    Raw Text: "${label.markdown.rawText}"`));
+        console.log(chalk.white(`    Raw Text: "${label.markdown.raw_text}"`));
         console.log(chalk.white(`    Position: ${label.markdown.position}`));
         console.log();
       });

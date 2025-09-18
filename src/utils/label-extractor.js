@@ -59,8 +59,7 @@ function extractLabelsFromText(text) {
         project: null,
         workspace: null,
         markdown: {
-          rawText: match[0], // The full [LABEL_NAME] text
-          position: match.index, // Position in the text
+          raw_text: match[0], // The full [LABEL_NAME] text
         },
       });
     }
@@ -168,8 +167,8 @@ export function validateLabel(label) {
     typeof label.name === "string" &&
     label.name.trim().length > 0 &&
     label.markdown &&
-    typeof label.markdown.rawText === "string" &&
-    label.markdown.rawText.startsWith("[") &&
-    label.markdown.rawText.endsWith("]")
+    typeof label.markdown.raw_text === "string" &&
+    label.markdown.raw_text.startsWith("[") &&
+    label.markdown.raw_text.endsWith("]")
   );
 }
