@@ -93,7 +93,7 @@ export async function getIssues() {
 
     if (response.status === 200) {
       console.log(chalk.green(`    ✅ Issues fetched: ${response.data}`));
-      console.log("response.data", response.data);
+
       return response.data.results;
     } else {
       throw new Error(`Unexpected response status: ${response.status}`);

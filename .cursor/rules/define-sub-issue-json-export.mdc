@@ -1,0 +1,49 @@
+---
+alwaysApply: true
+---
+
+# JSON Structure for sub issues
+
+This document defines the JSON structure for managing sub issues based on the markdown structure defined in `define-checklist-markdown.mdc`.
+
+## Complete JSON Structure
+
+```json
+{
+  "issues": [
+    {
+      "type": "sub_issue",
+      "module_name": "Phase 1: [BE-CORE] Nền tảng & Khởi tạo kiến trúc cơ bản",
+      "parent_issue_name": "Xây dựng API Gateway / Load Balancer (Tenant routing, context injection)"
+      "name": "Middleware xác định tenant từ header/domain, kiểm tra tenant tồn tại, active, inject context vào request",
+      "raw_text": "- [x] [High] Middleware xác định tenant từ header/domain, kiểm tra tenant tồn tại, active, inject context vào request",
+      "is_completed": true,
+      "payload": {
+        "id": null,
+        "created_at": null,
+        "updated_at": null,
+        "estimate_point": null,
+        "name": "Middleware xác định tenant từ header/domain, kiểm tra tenant tồn tại, active, inject context vào request",
+        "description_html": "<p></p>",
+        "description_stripped": "",
+        "priority": "high",
+        "start_date": null,
+        "target_date": null,
+        "sequence_id": null,
+        "sort_order": null,
+        "completed_at": null,
+        "archived_at": null,
+        "is_draft": false,
+        "created_by": null,
+        "updated_by": null,
+        "project": null,
+        "workspace": null,
+        "parent": null,
+        "state": null,
+        "assignees": [],
+        "labels": []
+      }
+    }
+  ]
+}
+```

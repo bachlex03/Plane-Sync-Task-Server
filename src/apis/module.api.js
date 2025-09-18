@@ -186,3 +186,54 @@ export async function deleteModule(moduleId) {
     return false;
   }
 }
+
+/**
+ * Add issues to a module in Plane
+ * @param {string} moduleId - Module ID
+ * @param {Array<string>} issueIds - Array of issue IDs to add to the module
+ * @returns {Object} Response data from the API
+ */
+export async function addIssuesToModule(moduleId, issueIds) {
+  if (!moduleId) {
+    throw new Error("Module ID is required");
+  }
+
+  if (!issueIds || !Array.isArray(issueIds) || issueIds.length === 0) {
+    throw new Error("Issue IDs array is required and must not be empty");
+  }
+
+  try {
+    console.log(
+      chalk.blue(`Adding ${issueIds.length} issue(s) to module ${moduleId}...`)
+    );
+
+    const response = await axios.post(
+      `${process.env.PLANE_API_BASE_URL}/api/v1/workspaces/${process.env.PLANE_WORKSPACE_SLUG}/projects/${process.env.PLANE_PROJECT_ID}/modules/${moduleId}/module-issues/`,
+      {
+        issues: issueIds,
+      },
+      {
+        headers: {
+          "X-API-Key": process.env.PLANE_API_KEY,
+          "Content-Type": "application/json",
+        },
+        timeout: 10000,
+      }
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      console.log(chalk.green(`    ✅ Issues added to module successfully`));
+      console.log("response.data", response.data);
+      return response.data;
+    } else {
+      throw new Error(`Unexpected response status: ${response.status}`);
+    }
+  } catch (error) {
+    console.log(chalk.yellow(`    ⚠️  Error: ${error.message}`));
+    if (error.response) {
+      console.log(chalk.red(`    Response status: ${error.response.status}`));
+      console.log(chalk.red(`    Response data:`, error.response.data));
+    }
+    throw error;
+  }
+}

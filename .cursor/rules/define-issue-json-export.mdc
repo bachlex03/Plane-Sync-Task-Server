@@ -1,0 +1,49 @@
+---
+alwaysApply: true
+---
+
+# JSON Structure for issues
+
+This document defines the JSON structure for managing issues based on the markdown structure defined in `define-checklist-markdown.mdc`.
+
+## Complete JSON Structure
+
+```json
+{
+  "issues": [
+    {
+      "type": "main_issue",
+      "module_name": "Phase 1: [BE-CORE] Nền tảng & Khởi tạo kiến trúc cơ bản"
+      "name": "Xây dựng API Gateway / Load Balancer (Tenant routing, context injection)",
+      "raw_text": "- [ ] [High] Xây dựng API Gateway / Load Balancer (Tenant routing, context injection) [Xem chi tiết](./Phase1/api-gateway.md)",
+      "link_sub_issue": "./Phase1/api-gateway.md",
+      "is_completed": false,
+      "payload": {
+        "id": null,
+        "created_at": null,
+        "updated_at": null,
+        "estimate_point": null,
+        "name": "Xây dựng API Gateway / Load Balancer (Tenant routing, context injection)",
+        "description_html": "<p></p>",
+        "description_stripped": "",
+        "priority": "high",
+        "start_date": null,
+        "target_date": null,
+        "sequence_id": null,
+        "sort_order": null,
+        "completed_at": null,
+        "archived_at": null,
+        "is_draft": false,
+        "created_by": null,
+        "updated_by": null,
+        "project": null,
+        "workspace": null,
+        "parent": null,
+        "state": null,
+        "assignees": [],
+        "labels": []
+      }
+    }
+  ]
+}
+```
