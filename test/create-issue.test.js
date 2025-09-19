@@ -9,10 +9,11 @@ import { getModules, addIssuesToModule } from "../src/apis/module.api.js";
 const outputFolder = path.resolve(process.cwd(), "output");
 const issuesJSONPath = path.resolve(
   outputFolder,
-  "backend-issues-phase1_2.json"
+  "backend-issues-phase2_1.json"
 );
 
-const addIssuesToModuleName = "Phase 1.2: Shared Libraries Support";
+const addIssuesToModuleName =
+  "Phase 2.1: Quản trị vận hành & kỹ thuật (Operation & Technical Management)";
 
 const BATCH_SIZE = 20; // 20 sub-issues per batch
 const SLEEP_MS = 2000; // 2 seconds sleep between batches

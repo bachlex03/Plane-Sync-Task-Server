@@ -13,18 +13,18 @@ import {
 
 const docsPath = path.resolve(process.cwd(), "docs");
 const backendPath = path.resolve(docsPath, "backend");
-const phase1Path = path.resolve(backendPath, "Phase1");
+const phasePath = path.resolve(backendPath, "Phase2");
 
 const parentIssuesJSONPath = path.resolve(
   process.cwd(),
   "output",
-  "backend-issues-phase1_1.json"
+  "backend-issues-phase2_1.json"
 );
 
 const subIssuesJSONPath = path.resolve(
   process.cwd(),
   "output",
-  "backend-sub-issues-phase1_1.json"
+  "backend-sub-issues-phase2_1.json"
 );
 
 /**
@@ -62,17 +62,15 @@ function loadParentIssuesFromJSON() {
  */
 function getPhase1MarkdownFiles() {
   try {
-    if (!fs.existsSync(phase1Path)) {
-      console.log(
-        chalk.yellow(`⚠️  Phase1 directory not found: ${phase1Path}`)
-      );
+    if (!fs.existsSync(phasePath)) {
+      console.log(chalk.yellow(`⚠️  Phase1 directory not found: ${phasePath}`));
       return [];
     }
 
-    const files = fs.readdirSync(phase1Path);
+    const files = fs.readdirSync(phasePath);
     const markdownFiles = files
       .filter((file) => file.endsWith(".md"))
-      .map((file) => path.resolve(phase1Path, file));
+      .map((file) => path.resolve(phasePath, file));
 
     console.log(
       chalk.blue(`📁 Found ${markdownFiles.length} markdown files in Phase1:`)

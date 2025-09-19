@@ -1,12 +1,13 @@
 # Refactor Domain Modules sang CQRS Pattern (CommandBus, QueryBus, EventBus)
 
 > **Lưu ý quan trọng:**
+>
 > - **Gợi ý công nghệ:** Sử dụng NestJS CQRS, custom Command/Query/Event, RabbitMQ/NATS (event bus), Prisma ORM, Prometheus/Grafana (monitoring), Jest/Supertest (test), Docker Compose (devops), audit log (custom interceptor + DB), tuân thủ HIPAA/GDPR.
 > - Refactor các module domain (Patients, Users, Branches, Tenants, FileUpload, ...) sang CQRS pattern: tách rõ Command (ghi), Query (đọc), Event (phát sự kiện).
 > - Đảm bảo mọi command/query/event đều truyền đúng context (tenantId, userId, traceId), không để rò rỉ dữ liệu giữa các tenant.
 > - Audit log đầy đủ, immutable cho mọi command, event, phục vụ compliance (HIPAA/GDPR).
 > - Checklist này chỉ tập trung cho backend (CQRS hóa domain, isolation, bảo mật, audit, resilience), không bao gồm UI/UX.
-> 
+
 ## Cấu trúc thư mục
 
 ```
@@ -187,60 +188,63 @@ libs/backend/
 │   └── package.json
 ```
 
-## 1. Những việc đã làm
-- [ ] (Điền các task đã hoàn thành tại đây, ví dụ: Đã refactor Patients module sang CQRS, đã có CommandHandler cho CreatePatient...)
-
-## 2. Những việc cần làm
+## 1. Những việc cần làm
 
 ### Refactor từng domain module
-- [ ] Refactor Patients module sang CQRS (CommandHandler, QueryHandler, EventHandler)
-- [ ] Refactor Users module sang CQRS
-- [ ] Refactor Branches module sang CQRS
-- [ ] Refactor Tenants module sang CQRS
-- [ ] Refactor FileUpload module sang CQRS
-- [ ] Refactor các module domain khác (nếu có)
+
+- [ ] [None] Refactor Patients module sang CQRS (CommandHandler, QueryHandler, EventHandler)
+- [ ] [None] Refactor Users module sang CQRS
+- [ ] [None] Refactor Branches module sang CQRS
+- [ ] [None] Refactor Tenants module sang CQRS
+- [ ] [None] Refactor FileUpload module sang CQRS
+- [ ] [None] Refactor các module domain khác (nếu có)
 
 ### Command/Query/Event
-- [ ] Tách rõ Command (ghi), Query (đọc), Event (phát sự kiện) cho từng use case
-- [ ] Đảm bảo mọi Command/Query/Event đều truyền context (tenantId, userId, traceId)
-- [ ] Định nghĩa DTO, schema cho từng Command/Query/Event
-- [ ] Đảm bảo idempotency cho Command (nếu cần)
-- [ ] Hỗ trợ transactional outbox cho Event publish
-- [ ] Hỗ trợ event replay, event sourcing (nếu cần)
-- [ ] Định nghĩa schema hợp lệ cho CQRS DTO (dùng class-validator hoặc zod)
-- [ ] Xây dựng chiến lược mapping giữa DTO ↔ entity (dùng mapper riêng hoặc manual)
-- [ ] Áp dụng rate limit/throttling cho các Command đặc biệt quan trọng (giảm abuse)
+
+- [ ] [None] Tách rõ Command (ghi), Query (đọc), Event (phát sự kiện) cho từng use case
+- [ ] [None] Đảm bảo mọi Command/Query/Event đều truyền context (tenantId, userId, traceId)
+- [ ] [None] Định nghĩa DTO, schema cho từng Command/Query/Event
+- [ ] [None] Đảm bảo idempotency cho Command (nếu cần)
+- [ ] [None] Hỗ trợ transactional outbox cho Event publish
+- [ ] [None] Hỗ trợ event replay, event sourcing (nếu cần)
+- [ ] [None] Định nghĩa schema hợp lệ cho CQRS DTO (dùng class-validator hoặc zod)
+- [ ] [None] Xây dựng chiến lược mapping giữa DTO ↔ entity (dùng mapper riêng hoặc manual)
+- [ ] [None] Áp dụng rate limit/throttling cho các Command đặc biệt quan trọng (giảm abuse)
 
 ### Bảo mật & Multi-tenant isolation
-- [ ] Kiểm tra context tenant ở mọi Command/Query/Event
-- [ ] Đảm bảo isolation dữ liệu giữa các tenant (trừ super admin)
-- [ ] Phân quyền chi tiết cho từng Command/Query (RBAC, permission matrix)
-- [ ] Audit log immutable cho mọi Command, Event
-- [ ] Cảnh báo khi có truy cập bất thường (cross-tenant, replay, duplicate)
-- [ ] Kiểm tra JWT/Session trước khi xử lý Command/Query
-- [ ] Hỗ trợ super admin override mode (nếu có)
-- [ ] Cơ chế tách quyền theo role chuyên ngành (Y sĩ, Bác sĩ, Kế toán…)
+
+- [ ] [None] Kiểm tra context tenant ở mọi Command/Query/Event
+- [ ] [None] Đảm bảo isolation dữ liệu giữa các tenant (trừ super admin)
+- [ ] [None] Phân quyền chi tiết cho từng Command/Query (RBAC, permission matrix)
+- [ ] [None] Audit log immutable cho mọi Command, Event
+- [ ] [None] Cảnh báo khi có truy cập bất thường (cross-tenant, replay, duplicate)
+- [ ] [None] Kiểm tra JWT/Session trước khi xử lý Command/Query
+- [ ] [None] Hỗ trợ super admin override mode (nếu có)
+- [ ] [None] Cơ chế tách quyền theo role chuyên ngành (Y sĩ, Bác sĩ, Kế toán…)
 
 ### Monitoring & Observability
-- [ ] Expose Prometheus metrics cho từng Command, Query, Event (count, latency, error rate...)
-- [ ] Tạo dashboard Prometheus/Grafana mẫu cho domain CQRS
-- [ ] Tích hợp alerting (Grafana Alert, email, Slack... khi handler fail)
-- [ ] Gắn trace ID + span ID vào mọi log (OpenTelemetry)
-- [ ] Sử dụng custom label cho Prometheus (tenantId, commandName, latency bucket)
-- [ ] Alert khi có burst bất thường từ một tenant (điều tra abuse/loop)
+
+- [ ] [None] Expose Prometheus metrics cho từng Command, Query, Event (count, latency, error rate...)
+- [ ] [None] Tạo dashboard Prometheus/Grafana mẫu cho domain CQRS
+- [ ] [None] Tích hợp alerting (Grafana Alert, email, Slack... khi handler fail)
+- [ ] [None] Gắn trace ID + span ID vào mọi log (OpenTelemetry)
+- [ ] [None] Sử dụng custom label cho Prometheus (tenantId, commandName, latency bucket)
+- [ ] [None] Alert khi có burst bất thường từ một tenant (điều tra abuse/loop)
 
 ### Kiểm thử & tài liệu
-- [ ] Unit test, integration test cho từng Command, Query, Event handler
-- [ ] Test isolation dữ liệu giữa các tenant
-- [ ] Test resilience: mô phỏng event bus down, handler lỗi, kiểm tra phản hồi đúng
-- [ ] Test concurrent tenants (100+), concurrent users (1000+)
-- [ ] Test rollback khi Command thất bại (transactional integrity)
-- [ ] Tài liệu hóa refactor CQRS cho từng domain (OpenAPI/Swagger, hướng dẫn tích hợp CQRS)
-- [ ] Tài liệu log schema (gồm traceId, actor, module, resourceId)
-- [ ] Ghi chú kỹ quyền audit cần tuân thủ chuẩn ISO 27799 / HIPAA về bảo mật y tế
 
-## 3. Bổ sung checklist nâng cao
-- [ ] Hỗ trợ event sourcing, snapshotting cho domain quan trọng
-- [ ] Hỗ trợ canary release, blue/green deployment cho handler
-- [ ] Hỗ trợ API versioning cho Command/Query/Event
-- [ ] Load test cho domain CQRS với nhiều tenant, nhiều event đồng thời 
+- [ ] [None] Unit test, integration test cho từng Command, Query, Event handler
+- [ ] [None] Test isolation dữ liệu giữa các tenant
+- [ ] [None] Test resilience: mô phỏng event bus down, handler lỗi, kiểm tra phản hồi đúng
+- [ ] [None] Test concurrent tenants (100+), concurrent users (1000+)
+- [ ] [None] Test rollback khi Command thất bại (transactional integrity)
+- [ ] [None] Tài liệu hóa refactor CQRS cho từng domain (OpenAPI/Swagger, hướng dẫn tích hợp CQRS)
+- [ ] [None] Tài liệu log schema (gồm traceId, actor, module, resourceId)
+- [ ] [None] Ghi chú kỹ quyền audit cần tuân thủ chuẩn ISO 27799 / HIPAA về bảo mật y tế
+
+## 2. Bổ sung checklist nâng cao
+
+- [ ] [None] Hỗ trợ event sourcing, snapshotting cho domain quan trọng
+- [ ] [Low] Hỗ trợ canary release, blue/green deployment cho handler
+- [ ] [None] Hỗ trợ API versioning cho Command/Query/Event
+- [ ] [None] Load test cho domain CQRS với nhiều tenant, nhiều event đồng thời

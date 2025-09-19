@@ -1,6 +1,7 @@
 # Checklist: Cho phép Domain Modules phát sự kiện (DomainEvent)
 
 > **Lưu ý quan trọng:**
+>
 > - DomainEvent là các sự kiện nghiệp vụ phát sinh từ các module domain (ví dụ: UserCreated, PatientAdmitted, BranchUpdated...).
 > - Sự kiện phải truyền đúng context (tenantId, userId, traceId) và đảm bảo isolation giữa các tenant.
 > - Nên sử dụng EventBus abstraction (libs/backend/cqrs/event-bus/) để publish event, hỗ trợ transactional outbox nếu cần.
@@ -8,7 +9,7 @@
 > - Mỗi event handler nên xác thực lại quyền của event sender nếu dùng shared bus (userId trong event có đúng là của tenant đó không?).
 > - Bổ sung context.guard() chung để validate tenantId trong mọi publish/handler.
 > - Gợi ý schema event nên đặt tên rõ ràng và versioned, ví dụ: `export class PatientAdmittedV1Event { ... }`
->
+
 ## Cấu trúc thư mục
 
 ```
@@ -78,63 +79,66 @@ libs/backend/
 │   └── package.json
 ```
 
-## 1. Những việc đã làm
-- [ ] (Điền các task đã hoàn thành tại đây, ví dụ: Đã có event UserCreatedEvent, đã publish event khi tạo user...)
-
-## 2. Những việc cần làm
+## 1. Những việc cần làm
 
 ### Triển khai DomainEvent
-- [ ] Định nghĩa các DomainEvent cho từng module (UserCreated, PatientAdmitted, BranchUpdated...)
-- [ ] Tạo event class và event handler cho từng sự kiện (nên versioned, ví dụ: PatientAdmittedV1Event)
-- [ ] Sử dụng EventBus abstraction để publish event từ service/domain logic
-- [ ] Truyền context (tenantId, userId, traceId) vào event
-- [ ] Hỗ trợ transactional outbox pattern khi publish event (nếu cần đảm bảo nhất quán)
-- [ ] Audit trail trong outbox table: actorId, action, resourceId, timestamp
-- [ ] Đảm bảo event không bị phát cross-tenant
-- [ ] Hỗ trợ event versioning (nếu cần)
-- [ ] Có check idempotency key cho mỗi event (tránh xử lý trùng)
-- [ ] Có retry backoff strategy (exponential, capped)
+
+- [ ] [None] Định nghĩa các DomainEvent cho từng module (UserCreated, PatientAdmitted, BranchUpdated...)
+- [ ] [None] Tạo event class và event handler cho từng sự kiện (nên versioned, ví dụ: PatientAdmittedV1Event)
+- [ ] [None] Sử dụng EventBus abstraction để publish event từ service/domain logic
+- [ ] [Critical] Truyền context (tenantId, userId, traceId) vào event
+- [ ] [None] Hỗ trợ transactional outbox pattern khi publish event (nếu cần đảm bảo nhất quán)
+- [ ] [Critical] Audit trail trong outbox table: actorId, action, resourceId, timestamp
+- [ ] [Critical] Đảm bảo event không bị phát cross-tenant
+- [ ] [Medium] Hỗ trợ event versioning (nếu cần)
+- [ ] [None] Có check idempotency key cho mỗi event (tránh xử lý trùng)
+- [ ] [None] Có retry backoff strategy (exponential, capped)
 
 ### Bảo mật & Isolation
-- [ ] Kiểm tra context tenant khi publish event
-- [ ] Audit log mọi event publish (traceId, actor, resource, action)
-- [ ] Cảnh báo khi có event cross-tenant hoặc bất thường
-- [ ] Hỗ trợ encrypt payload (nếu cần bảo mật cao)
-- [ ] Xác thực và phân quyền ở mức handler nếu dùng shared bus
-- [ ] context.guard() validate tenantId trong mọi publish/handler
+
+- [ ] [Critical] Kiểm tra context tenant khi publish event
+- [ ] [Critical] Audit log mọi event publish (traceId, actor, resource, action)
+- [ ] [None] Cảnh báo khi có event cross-tenant hoặc bất thường
+- [ ] [Medium] Hỗ trợ encrypt payload (nếu cần bảo mật cao)
+- [ ] [None] Xác thực và phân quyền ở mức handler nếu dùng shared bus
+- [ ] [Critical] context.guard() validate tenantId trong mọi publish/handler
 
 ### Monitoring & Observability
-- [ ] Expose Prometheus metrics cho event publish (event count, latency, error rate...)
-- [ ] Sử dụng custom label cho metrics (tenantId, eventName, latency bucket)
-- [ ] Tích hợp alerting (Grafana Alert, email, Slack... khi event publish fail)
-- [ ] Gắn trace ID + span ID vào mọi event (OpenTelemetry)
-- [ ] Tạo dashboard Prometheus/Grafana mẫu cho domain event
-- [ ] Thêm alert khi sự kiện mất traceId hoặc tenantId (reject/cảnh báo)
-- [ ] Structured logging cho event publish (log JSON: eventName, tenantId, userId, resourceType, resourceId)
+
+- [ ] [None] Expose Prometheus metrics cho event publish (event count, latency, error rate...)
+- [ ] [None] Sử dụng custom label cho metrics (tenantId, eventName, latency bucket)
+- [ ] [None] Tích hợp alerting (Grafana Alert, email, Slack... khi event publish fail)
+- [ ] [Medium] Gắn trace ID + span ID vào mọi event (OpenTelemetry)
+- [ ] [Medium] Tạo dashboard Prometheus/Grafana mẫu cho domain event
+- [ ] [None] Thêm alert khi sự kiện mất traceId hoặc tenantId (reject/cảnh báo)
+- [ ] [None] Structured logging cho event publish (log JSON: eventName, tenantId, userId, resourceType, resourceId)
 
 ### Kiểm thử & resilience
-- [ ] Unit test, integration test cho event publish/handler
-- [ ] Test isolation event giữa các tenant
-- [ ] Test resilience: mô phỏng event bus down, handler lỗi, kiểm tra retry/failover
-- [ ] Test event replay, event sourcing (nếu có)
-- [ ] Test concurrent tenants (100+), concurrent events (1000+)
-- [ ] Load test cho event publish
-- [ ] Test rollback khi event publish thành công nhưng downstream fail
-- [ ] Test khi event publish nhưng DB rollback (nếu không dùng outbox → lost event)
+
+- [ ] [None] Unit test, integration test cho event publish/handler
+- [ ] [Critical] Test isolation event giữa các tenant
+- [ ] [None] Test resilience: mô phỏng event bus down, handler lỗi, kiểm tra retry/failover
+- [ ] [Medium] Test event replay, event sourcing (nếu có)
+- [ ] [Medium] Test concurrent tenants (100+), concurrent events (1000+)
+- [ ] [Medium] Load test cho event publish
+- [ ] [None] Test rollback khi event publish thành công nhưng downstream fail
+- [ ] [None] Test khi event publish nhưng DB rollback (nếu không dùng outbox → lost event)
 
 ### Tài liệu hóa
-- [ ] Tài liệu hóa các DomainEvent, hướng dẫn publish/subscribe
-- [ ] Tài liệu log schema (traceId, actor, event, resourceId)
-- [ ] Hướng dẫn vận hành, backup/restore event bus
-- [ ] Ghi chú kỹ quyền audit cần tuân thủ chuẩn ISO 27799 / HIPAA về bảo mật event bus
-- [ ] Có mẫu schema cụ thể cho tất cả event (event contract: field, kiểu dữ liệu, required)
-- [ ] Bổ sung quy trình rollback hoặc compensating nếu event bị lỗi không xử lý kịp
-- [ ] Có script để migrate schema event (nếu versioned)
-- [ ] Có test run contract event với consumer (consumer-driven contract)
 
-## 3. Bổ sung checklist nâng cao
-- [ ] Hỗ trợ event sourcing cho domain quan trọng
-- [ ] Hỗ trợ canary release, blue/green deployment cho event handler
-- [ ] Hỗ trợ API versioning cho event
-- [ ] Hỗ trợ WebSocket/gRPC event streaming nếu cần
-- [ ] Tích hợp WAF cho event API nếu expose ra ngoài 
+- [ ] [Medium] Tài liệu hóa các DomainEvent, hướng dẫn publish/subscribe
+- [ ] [Medium] Tài liệu log schema (traceId, actor, event, resourceId)
+- [ ] [Medium] Hướng dẫn vận hành, backup/restore event bus
+- [ ] [None] Ghi chú kỹ quyền audit cần tuân thủ chuẩn ISO 27799 / HIPAA về bảo mật event bus
+- [ ] [Medium] Có mẫu schema cụ thể cho tất cả event (event contract: field, kiểu dữ liệu, required)
+- [ ] [None] Bổ sung quy trình rollback hoặc compensating nếu event bị lỗi không xử lý kịp
+- [ ] [Low] Có script để migrate schema event (nếu versioned)
+- [ ] [Medium] Có test run contract event với consumer (consumer-driven contract)
+
+## 2. Bổ sung checklist nâng cao
+
+- [ ] [Medium] Hỗ trợ event sourcing cho domain quan trọng
+- [ ] [Low] Hỗ trợ canary release, blue/green deployment cho event handler
+- [ ] [Medium] Hỗ trợ API versioning cho event
+- [ ] [Low] Hỗ trợ WebSocket/gRPC event streaming nếu cần
+- [ ] [Medium] Tích hợp WAF cho event API nếu expose ra ngoài

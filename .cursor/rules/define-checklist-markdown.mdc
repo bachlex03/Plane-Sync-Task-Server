@@ -1,5 +1,5 @@
 ---
-globs: docs/Phase*/**/*.md,*-implementation-phases.md
+globs: docs/**/*.md,*-implementation-phases.md
 alwaysApply: false
 ---
 
