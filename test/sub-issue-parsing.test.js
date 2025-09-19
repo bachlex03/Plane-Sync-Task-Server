@@ -18,13 +18,13 @@ const phase1Path = path.resolve(backendPath, "Phase1");
 const parentIssuesJSONPath = path.resolve(
   process.cwd(),
   "output",
-  "backend-issues-phase1.json"
+  "backend-issues-phase1_1.json"
 );
 
 const subIssuesJSONPath = path.resolve(
   process.cwd(),
   "output",
-  "backend-sub-issues-phase1.json"
+  "backend-sub-issues-phase1_1.json"
 );
 
 /**

@@ -118,9 +118,58 @@ export async function getModules() {
     );
 
     if (response.status === 200) {
-      console.log(chalk.green(`    ✅ Modules fetched: ${response.data}`));
-      console.log("response.data", response.data);
-      return response.data.results;
+      console.log(
+        chalk.green(
+          `    ✅ Modules fetched: ${response.data.results.length} modules`
+        )
+      );
+
+      const modules = response.data.results.map((module) => {
+        console.log("module.name", module.name);
+
+        return {
+          id: module.id,
+          total_issues: module.total_issues,
+          cancelled_issues: module.cancelled_issues,
+          completed_issues: module.completed_issues,
+          started_issues: module.started_issues,
+          unstarted_issues: module.unstarted_issues,
+          backlog_issues: module.backlog_issues,
+          created_at: module.created_at,
+          updated_at: module.updated_at,
+          name: module.name,
+          description: module.description,
+          description_text: module.description_text,
+          description_html: module.description_html,
+          start_date: module.start_date,
+          target_date: module.target_date,
+          status: module.status,
+          view_props: module.view_props,
+          sort_order: module.sort_order,
+          external_source: module.external_source,
+          external_id: module.external_id,
+          archived_at: module.archived_at,
+          logo_props: module.logo_props,
+          created_by: module.created_by,
+          updated_by: module.updated_by,
+          project: module.project,
+          workspace: module.workspace,
+          lead: module.lead,
+          members: module.members,
+        };
+      });
+
+      return {
+        next_cursor: response.data.next_cursor,
+        prev_cursor: response.data.prev_cursor,
+        next_page_results: response.data.next_page_results,
+        prev_page_results: response.data.prev_page_results,
+        count: response.data.count,
+        total_pages: response.data.total_pages,
+        total_results: response.data.total_results,
+        extra_stats: response.data.extra_stats,
+        results: modules,
+      };
     } else {
       throw new Error(`Unexpected response status: ${response.status}`);
     }
@@ -223,7 +272,7 @@ export async function addIssuesToModule(moduleId, issueIds) {
 
     if (response.status === 200 || response.status === 201) {
       console.log(chalk.green(`    ✅ Issues added to module successfully`));
-      console.log("response.data", response.data);
+
       return response.data;
     } else {
       throw new Error(`Unexpected response status: ${response.status}`);

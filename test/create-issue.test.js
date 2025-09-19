@@ -7,9 +7,15 @@ import { getIssues, createIssue } from "../src/apis/issue.api.js";
 import { getModules, addIssuesToModule } from "../src/apis/module.api.js";
 
 const outputFolder = path.resolve(process.cwd(), "output");
-const issuesJSONPath = path.resolve(outputFolder, "backend-issues-phase1.json");
+const issuesJSONPath = path.resolve(
+  outputFolder,
+  "backend-issues-phase1_2.json"
+);
 
-const addIssuesToModuleName = "Phase 1: Nền tảng & Khởi tạo kiến trúc cơ bản";
+const addIssuesToModuleName = "Phase 1.2: Shared Libraries Support";
+
+const BATCH_SIZE = 20; // 20 sub-issues per batch
+const SLEEP_MS = 2000; // 2 seconds sleep between batches
 
 /**
  * Load issues from JSON file
@@ -62,50 +68,6 @@ function findIssuesToCreate(jsonIssues, existingIssues) {
 }
 
 /**
- * Create a single issue (without actually calling the API)
- * @param {Object} issueData - Issue data to create
- * @returns {Object} Prepared issue creation data
- */
-function prepareIssueCreation(issueData) {
-  const creationData = {
-    name: issueData.name,
-    description_html: issueData.payload.description_html || "<p></p>",
-    description_stripped: issueData.payload.description_stripped || "",
-    priority: issueData.payload.priority || "none",
-    start_date: issueData.payload.start_date,
-    target_date: issueData.payload.target_date,
-    estimate_point: issueData.payload.estimate_point,
-    is_draft: issueData.payload.is_draft || false,
-    labels: issueData.payload.labels || [], // Include labels from JSON
-    // Note: We don't include id, created_at, updated_at as these are set by the API
-    // We also don't include created_by, updated_by, project, workspace as these are handled by the API
-    // State will be determined by is_completed status
-    markdown: {
-      isCompleted: issueData.is_completed || false,
-      raw_text: issueData.raw_text,
-    },
-  };
-
-  console.log(
-    chalk.cyan(`  🔧 Prepared issue creation data for: "${issueData.name}"`)
-  );
-  console.log(chalk.gray(`    Priority: ${creationData.priority}`));
-  console.log(
-    chalk.gray(`    Completed: ${creationData.markdown.isCompleted}`)
-  );
-  console.log(chalk.gray(`    Draft: ${creationData.is_draft}`));
-  console.log(
-    chalk.gray(
-      `    Labels: ${
-        creationData.labels.length > 0 ? creationData.labels.join(", ") : "None"
-      }`
-    )
-  );
-
-  return creationData;
-}
-
-/**
  * Find module by name
  * @param {Array} modules - Array of modules from API
  * @param {string} moduleName - Module name to find
@@ -123,81 +85,106 @@ function findModuleByName(modules, moduleName) {
   return module || null;
 }
 
-/**
- * Add created issues to the specified module
- * @param {Array} createdIssues - Array of created issue objects
- * @param {string} moduleName - Module name to add issues to
- * @returns {boolean} Success status
- */
-async function addIssuesToModuleByName(createdIssues, moduleName) {
-  try {
-    console.log(chalk.blue(`\n🔗 Adding issues to module: "${moduleName}"`));
+async function createIssuesInBatches(preparedIssues, batchSize, sleepMs) {
+  const createdIssues = [];
+  const totalBatches = Math.ceil(preparedIssues.length / batchSize);
+  let successCount = 0;
+  let errorCount = 0;
 
-    // Get all modules to find the target module
-    const modules = await getModules();
-    if (!modules) {
-      console.log(chalk.red("❌ Failed to fetch modules"));
-      return false;
-    }
+  console.log(chalk.blue(`📊 Total batches to process: ${totalBatches}`));
 
-    // Find the target module
-    const targetModule = findModuleByName(modules, moduleName);
-    if (!targetModule) {
-      console.log(chalk.red(`❌ Module not found: "${moduleName}"`));
-      console.log(chalk.gray("Available modules:"));
-      modules.forEach((mod) => {
-        console.log(chalk.gray(`  - "${mod.name}"`));
-      });
-      return false;
-    }
+  for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+    const startIndex = batchIndex * batchSize;
+    const endIndex = Math.min(startIndex + batchSize, preparedIssues.length);
+    const currentBatch = preparedIssues.slice(startIndex, endIndex);
 
     console.log(
-      chalk.green(
-        `✅ Found module: "${targetModule.name}" (ID: ${targetModule.id})`
+      chalk.cyan(
+        `\n🔄 Processing batch ${batchIndex + 1}/${totalBatches} (issues ${
+          startIndex + 1
+        }-${endIndex})`
       )
     );
 
-    // Extract issue IDs from created issues
-    const issueIds = createdIssues
-      .filter((issue) => issue && issue.id) // Filter out any null/undefined issues
-      .map((issue) => issue.id);
+    // Create issues in current batch concurrently
+    const batchPromises = currentBatch.map(async (issueData, index) => {
+      const globalIndex = startIndex + index + 1;
+      try {
+        console.log(
+          chalk.gray(
+            `  📝 Creating issue ${globalIndex}/${preparedIssues.length}: "${issueData.name}"`
+          )
+        );
 
-    if (issueIds.length === 0) {
-      console.log(
-        chalk.yellow("⚠️  No valid issue IDs found to add to module")
-      );
-      return false;
-    }
+        const createdIssue = await createIssue(issueData);
+        if (createdIssue) {
+          console.log(chalk.green(`  ✅ Created: ${createdIssue.name}`));
+          return { success: true, issue: createdIssue };
+        } else {
+          console.log(
+            chalk.red(
+              `  ❌ Failed to create: "${issueData.name}" - No response from API`
+            )
+          );
+          return { success: false, issue: null, error: "No response from API" };
+        }
+      } catch (error) {
+        console.log(
+          chalk.red(
+            `  ❌ Failed to create: "${issueData.name}" - ${error.message}`
+          )
+        );
+        return { success: false, issue: null, error: error.message };
+      }
+    });
+
+    // Wait for all issues in current batch to complete
+    const batchResults = await Promise.all(batchPromises);
+
+    // Process batch results
+    batchResults.forEach((result) => {
+      if (result.success && result.issue) {
+        createdIssues.push(result.issue);
+        successCount++;
+      } else {
+        errorCount++;
+      }
+    });
 
     console.log(
-      chalk.blue(`📋 Adding ${issueIds.length} issue(s) to module...`)
+      chalk.blue(
+        `  📊 Batch ${batchIndex + 1} completed: ${
+          batchResults.filter((r) => r.success).length
+        } success, ${batchResults.filter((r) => !r.success).length} failed`
+      )
     );
 
-    // Add issues to module
-    const result = await addIssuesToModule(targetModule.id, issueIds);
-
-    if (result) {
+    // Sleep between batches (except for the last batch)
+    if (batchIndex < totalBatches - 1) {
       console.log(
-        chalk.green(
-          `✅ Successfully added ${issueIds.length} issue(s) to module`
-        )
+        chalk.yellow(`  ⏳ Sleeping for ${sleepMs}ms before next batch...`)
       );
-      return true;
-    } else {
-      console.log(chalk.red("❌ Failed to add issues to module"));
-      return false;
+      await new Promise((resolve) => setTimeout(resolve, sleepMs));
     }
-  } catch (error) {
-    console.log(
-      chalk.red(`❌ Error adding issues to module: ${error.message}`)
-    );
-    return false;
   }
+
+  // Final summary
+  console.log(chalk.green.bold(`\n📊 Batch Creation Summary:`));
+  console.log(
+    chalk.white(`  Total issues processed: ${preparedIssues.length}`)
+  );
+  console.log(chalk.white(`  Successfully created: ${successCount}`));
+  console.log(chalk.white(`  Failed to create: ${errorCount}`));
+  console.log(chalk.white(`  Total batches processed: ${totalBatches}`));
+
+  return createdIssues;
 }
 
 async function createIssueTest() {
   console.log(chalk.blue.bold("🧪 Testing Issue Creation Process"));
   console.log(chalk.gray("=====================================\n"));
+
+  let processToCreate = false;
 
   try {
     // Step 1: Load issues from JSON file
@@ -209,24 +196,27 @@ async function createIssueTest() {
     console.log(
       chalk.blue("\n🌐 Step 2: Fetching existing issues from API...")
     );
-    const existingIssues = await getIssues();
+    let cursor = "50:0:0";
+    let page = 0;
+    let data = await getIssues(cursor);
+    let existingIssues = [...data.results];
 
-    if (!existingIssues) {
-      console.log(chalk.yellow("⚠️  No existing issues found or API error"));
-      console.log(
-        chalk.blue("📝 All issues from JSON will be considered for creation")
-      );
-    } else {
-      console.log(
-        chalk.green(
-          `✅ Found ${existingIssues.length} existing issues in Plane`
-        )
-      );
+    while (page < data.total_pages) {
+      cursor = data.next_cursor;
+      data = await getIssues(cursor);
+      existingIssues = [...existingIssues, ...data.results];
+      page++;
     }
 
-    // Step 3: Compare and find issues to create
     console.log(
-      chalk.blue("\n🔍 Step 3: Comparing JSON issues with existing issues...")
+      chalk.green(`✅ Found ${existingIssues.length} existing issues in Plane`)
+    );
+
+    // Step 3: Compare and find sub-issues to create
+    console.log(
+      chalk.blue(
+        "\n🔍 Step 3: Comparing JSON sub-issues with existing issues..."
+      )
     );
     const issuesToCreate = findIssuesToCreate(jsonIssues, existingIssues || []);
 
@@ -234,63 +224,15 @@ async function createIssueTest() {
       console.log(
         chalk.green("🎉 All issues from JSON already exist in Plane!")
       );
-
-      // Test module assignment with existing issues
-      console.log(
-        chalk.blue("\n🔗 Testing module assignment with existing issues...")
-      );
-
-      // Get all existing issues that match our JSON issues
-      const existingMatchingIssues = existingIssues.filter((existingIssue) =>
-        jsonIssues.some(
-          (jsonIssue) =>
-            jsonIssue.name.toLowerCase() === existingIssue.name.toLowerCase()
-        )
-      );
-
-      if (existingMatchingIssues.length > 0) {
-        console.log(
-          chalk.blue(
-            `Found ${existingMatchingIssues.length} existing issues to add to module`
-          )
-        );
-        const moduleAssignmentSuccess = await addIssuesToModuleByName(
-          existingMatchingIssues,
-          addIssuesToModuleName
-        );
-
-        if (moduleAssignmentSuccess) {
-          console.log(
-            chalk.green("✅ All existing issues successfully added to module!")
-          );
-        } else {
-          console.log(
-            chalk.red("❌ Failed to add some or all issues to module")
-          );
-        }
-      } else {
-        console.log(
-          chalk.yellow(
-            "⚠️  No matching existing issues found for module assignment"
-          )
-        );
-      }
-
       return;
     }
 
-    // Check if ALL issues need to be created (none exist)
     if (issuesToCreate.length === jsonIssues.length) {
-      console.log(
-        chalk.blue(
-          `\n🚀 All ${jsonIssues.length} issues from JSON need to be created!`
-        )
-      );
-      console.log(chalk.gray("Proceeding with full issue creation process..."));
-    } else {
+      processToCreate = true;
+
       console.log(
         chalk.yellow(
-          `\n📋 Partial creation needed: ${issuesToCreate.length} out of ${jsonIssues.length} issues need to be created`
+          `\n Can create all issues from JSON because some issues already exist in Plane`
         )
       );
     }
@@ -299,98 +241,218 @@ async function createIssueTest() {
       chalk.yellow(`\n📋 Found ${issuesToCreate.length} issues to create:`)
     );
 
-    // Step 4: Prepare issue creation data (without actually creating)
-    console.log(chalk.blue("\n🔧 Step 4: Preparing issue creation data..."));
-    const preparedIssues = [];
-
-    issuesToCreate.forEach((issueData, index) => {
-      console.log(chalk.cyan(`\n  Issue ${index + 1}:`));
-      const preparedData = prepareIssueCreation(issueData);
-      preparedIssues.push({
-        originalData: issueData,
-        preparedData: preparedData,
-      });
-    });
-
-    // Summary
-    console.log(chalk.green.bold("\n📊 Summary:"));
-    console.log(chalk.white(`  Total issues in JSON: ${jsonIssues.length}`));
-    console.log(
-      chalk.white(`  Existing issues in Plane: ${existingIssues?.length || 0}`)
-    );
-    console.log(chalk.white(`  Issues to create: ${issuesToCreate.length}`));
-    console.log(
-      chalk.white(
-        `  Issues already exist: ${jsonIssues.length - issuesToCreate.length}`
-      )
+    // Step 4: Add issues to module
+    // 4.1 get all modules and find target module by name "addIssuesToModuleName"
+    const results = await getModules();
+    const fetchedModules = results.results;
+    const targetModule = findModuleByName(
+      fetchedModules,
+      addIssuesToModuleName
     );
 
-    // Optional: Show what would be created (without actually creating)
-    console.log(chalk.blue.bold("\n🚀 Ready to create issues:"));
-    preparedIssues.forEach((issue, index) => {
-      console.log(chalk.cyan(`  ${index + 1}. "${issue.preparedData.name}"`));
-      console.log(chalk.gray(`     Priority: ${issue.preparedData.priority}`));
-      console.log(
-        chalk.gray(`     Completed: ${issue.preparedData.markdown.isCompleted}`)
-      );
-      console.log(chalk.gray(`     Draft: ${issue.preparedData.is_draft}`));
-    });
-
-    console.log(chalk.green.bold("\n✅ Issue creation preparation completed!"));
-    console.log(
-      chalk.yellow(
-        "💡 To actually create issues, uncomment the creation code below"
-      )
-    );
-
-    // Uncomment the following lines to actually create issues:
-    console.log(chalk.blue("\n🚀 Creating issues..."));
-    let successCount = 0;
-    let errorCount = 0;
-    const createdIssues = [];
-
-    for (const issue of preparedIssues) {
-      try {
-        console.log(chalk.blue(`Creating: "${issue.preparedData.name}"...`));
-        const createdIssue = await createIssue(issue.preparedData);
-        if (createdIssue) {
-          console.log(chalk.green(`✅ Created: ${createdIssue.name}`));
-          createdIssues.push(createdIssue);
-          successCount++;
-        }
-      } catch (error) {
-        console.log(
-          chalk.red(
-            `❌ Failed to create "${issue.preparedData.name}": ${error.message}`
-          )
-        );
-        errorCount++;
-      }
-    }
-
-    console.log(chalk.green.bold("\n📊 Creation Summary:"));
-    console.log(chalk.white(`  Successfully created: ${successCount}`));
-    console.log(chalk.white(`  Failed to create: ${errorCount}`));
-    console.log(chalk.white(`  Total processed: ${preparedIssues.length}`));
-
-    // Step 5: Add created issues to the specified module
-    if (createdIssues.length > 0) {
-      console.log(chalk.blue("\n🔗 Step 5: Adding issues to module..."));
-      const moduleAssignmentSuccess = await addIssuesToModuleByName(
-        createdIssues,
-        addIssuesToModuleName
-      );
-
-      if (moduleAssignmentSuccess) {
-        console.log(chalk.green("✅ All issues successfully added to module!"));
-      } else {
-        console.log(chalk.red("❌ Failed to add some or all issues to module"));
-      }
+    if (!targetModule) {
+      console.log(chalk.red(`❌ Module not found: "${addIssuesToModuleName}"`));
+      return;
     } else {
       console.log(
-        chalk.yellow("⚠️  No issues were created, skipping module assignment")
+        chalk.green(
+          `✅ Found module: "${targetModule.name}" (ID: ${targetModule.id})`
+        )
       );
     }
+
+    // 4.2 add issues to module
+    // 4.2.1 create issues
+    if (processToCreate) {
+      const createdIssues = await createIssuesInBatches(
+        issuesToCreate,
+        BATCH_SIZE,
+        SLEEP_MS
+      );
+
+      console.log("createdIssues", createdIssues);
+
+      // 4.2.2 add issues to module
+      if (createdIssues.length > 0) {
+        const moduleAssignmentSuccess = await addIssuesToModule(
+          targetModule.id,
+          createdIssues.map((issue) => issue.id)
+        );
+      }
+    }
+
+    // const moduleAssignmentSuccess = await addIssuesToModuleByName(
+    //   issuesToCreate,
+    //   addIssuesToModuleName
+    // );
+
+    // // Step 3: Compare and find issues to create
+    // console.log(
+    //   chalk.blue("\n🔍 Step 3: Comparing JSON issues with existing issues...")
+    // );
+    // const issuesToCreate = findIssuesToCreate(jsonIssues, existingIssues || []);
+
+    // if (issuesToCreate.length === 0) {
+    //   console.log(
+    //     chalk.green("🎉 All issues from JSON already exist in Plane!")
+    //   );
+
+    //   // Test module assignment with existing issues
+    //   console.log(
+    //     chalk.blue("\n🔗 Testing module assignment with existing issues...")
+    //   );
+
+    //   // Get all existing issues that match our JSON issues
+    //   const existingMatchingIssues = existingIssues.filter((existingIssue) =>
+    //     jsonIssues.some(
+    //       (jsonIssue) =>
+    //         jsonIssue.name.toLowerCase() === existingIssue.name.toLowerCase()
+    //     )
+    //   );
+
+    //   if (existingMatchingIssues.length > 0) {
+    //     console.log(
+    //       chalk.blue(
+    //         `Found ${existingMatchingIssues.length} existing issues to add to module`
+    //       )
+    //     );
+    //     const moduleAssignmentSuccess = await addIssuesToModuleByName(
+    //       existingMatchingIssues,
+    //       addIssuesToModuleName
+    //     );
+
+    //     if (moduleAssignmentSuccess) {
+    //       console.log(
+    //         chalk.green("✅ All existing issues successfully added to module!")
+    //       );
+    //     } else {
+    //       console.log(
+    //         chalk.red("❌ Failed to add some or all issues to module")
+    //       );
+    //     }
+    //   } else {
+    //     console.log(
+    //       chalk.yellow(
+    //         "⚠️  No matching existing issues found for module assignment"
+    //       )
+    //     );
+    //   }
+
+    //   return;
+    // }
+
+    // // Check if ALL issues need to be created (none exist)
+    // if (issuesToCreate.length === jsonIssues.length) {
+    //   console.log(
+    //     chalk.blue(
+    //       `\n🚀 All ${jsonIssues.length} issues from JSON need to be created!`
+    //     )
+    //   );
+    //   console.log(chalk.gray("Proceeding with full issue creation process..."));
+    // } else {
+    //   console.log(
+    //     chalk.yellow(
+    //       `\n📋 Partial creation needed: ${issuesToCreate.length} out of ${jsonIssues.length} issues need to be created`
+    //     )
+    //   );
+    // }
+
+    // console.log(
+    //   chalk.yellow(`\n📋 Found ${issuesToCreate.length} issues to create:`)
+    // );
+
+    // // Step 4: Prepare issue creation data (without actually creating)
+    // console.log(chalk.blue("\n🔧 Step 4: Preparing issue creation data..."));
+    // const preparedIssues = [];
+
+    // issuesToCreate.forEach((issueData, index) => {
+    //   console.log(chalk.cyan(`\n  Issue ${index + 1}:`));
+    //   const preparedData = prepareIssueCreation(issueData);
+    //   preparedIssues.push({
+    //     originalData: issueData,
+    //     preparedData: preparedData,
+    //   });
+    // });
+
+    // // Summary
+    // console.log(chalk.green.bold("\n📊 Summary:"));
+    // console.log(chalk.white(`  Total issues in JSON: ${jsonIssues.length}`));
+    // console.log(
+    //   chalk.white(`  Existing issues in Plane: ${existingIssues?.length || 0}`)
+    // );
+    // console.log(chalk.white(`  Issues to create: ${issuesToCreate.length}`));
+    // console.log(
+    //   chalk.white(
+    //     `  Issues already exist: ${jsonIssues.length - issuesToCreate.length}`
+    //   )
+    // );
+
+    // // Optional: Show what would be created (without actually creating)
+    // console.log(chalk.blue.bold("\n🚀 Ready to create issues:"));
+    // preparedIssues.forEach((issue, index) => {
+    //   console.log(chalk.cyan(`  ${index + 1}. "${issue.preparedData.name}"`));
+    //   console.log(chalk.gray(`     Priority: ${issue.preparedData.priority}`));
+    //   console.log(
+    //     chalk.gray(`     Completed: ${issue.preparedData.markdown.isCompleted}`)
+    //   );
+    //   console.log(chalk.gray(`     Draft: ${issue.preparedData.is_draft}`));
+    // });
+
+    // console.log(chalk.green.bold("\n✅ Issue creation preparation completed!"));
+    // console.log(
+    //   chalk.yellow(
+    //     "💡 To actually create issues, uncomment the creation code below"
+    //   )
+    // );
+
+    // Uncomment the following lines to actually create issues:
+    // console.log(chalk.blue("\n🚀 Creating issues..."));
+    // let successCount = 0;
+    // let errorCount = 0;
+    // const createdIssues = [];
+
+    // for (const issue of preparedIssues) {
+    //   try {
+    //     console.log(chalk.blue(`Creating: "${issue.preparedData.name}"...`));
+    //     const createdIssue = await createIssue(issue.preparedData);
+    //     if (createdIssue) {
+    //       console.log(chalk.green(`✅ Created: ${createdIssue.name}`));
+    //       createdIssues.push(createdIssue);
+    //       successCount++;
+    //     }
+    //   } catch (error) {
+    //     console.log(
+    //       chalk.red(
+    //         `❌ Failed to create "${issue.preparedData.name}": ${error.message}`
+    //       )
+    //     );
+    //     errorCount++;
+    //   }
+    // }
+
+    // console.log(chalk.green.bold("\n📊 Creation Summary:"));
+    // console.log(chalk.white(`  Successfully created: ${successCount}`));
+    // console.log(chalk.white(`  Failed to create: ${errorCount}`));
+    // console.log(chalk.white(`  Total processed: ${preparedIssues.length}`));
+
+    // // Step 5: Add created issues to the specified module
+    // if (createdIssues.length > 0) {
+    //   console.log(chalk.blue("\n🔗 Step 5: Adding issues to module..."));
+    //   const moduleAssignmentSuccess = await addIssuesToModuleByName(
+    //     createdIssues,
+    //     addIssuesToModuleName
+    //   );
+
+    //   if (moduleAssignmentSuccess) {
+    //     console.log(chalk.green("✅ All issues successfully added to module!"));
+    //   } else {
+    //     console.log(chalk.red("❌ Failed to add some or all issues to module"));
+    //   }
+    // } else {
+    //   console.log(
+    //     chalk.yellow("⚠️  No issues were created, skipping module assignment")
+    //   );
+    // }
   } catch (error) {
     console.log(chalk.red(`❌ Test failed: ${error.message}`));
   }

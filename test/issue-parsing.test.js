@@ -18,10 +18,10 @@ const backendImplementationPhasesPath = path.resolve(
 const outputFolder = path.resolve(process.cwd(), "output");
 const exportIssuePhase1Path = path.resolve(
   outputFolder,
-  "backend-issues-phase1.json"
+  "backend-issues-phase1_2.json"
 );
 
-const PHASE_NAME = "Phase 1: [BE-CORE] Nền tảng & Khởi tạo kiến trúc cơ bản";
+const PHASE_NAME = "Phase 1.2: [BE-SHARED-LIBS] Shared Libraries Support";
 
 /**
  * Extract label from module name
@@ -73,7 +73,7 @@ function extractIssuesFromPhase(ast, phaseName, labels = []) {
   // Walk through the AST to find the target phase and its issues
   walkAST(ast, (node) => {
     // Check for phase headers (##)
-    if (node.type === "heading" && node.depth === 2) {
+    if (node.type === "heading" && (node.depth === 2 || node.depth === 3)) {
       const headingText = extractTextFromHeading(node);
       if (headingText.includes(phaseName)) {
         inTargetPhase = true;
@@ -374,7 +374,9 @@ async function exportIssuesToJSON(issues, outputPath) {
 }
 
 async function issueParsingTest() {
-  console.log(chalk.blue.bold("🧪 Testing Issue Extraction from Phase 1"));
+  console.log(
+    chalk.blue.bold(`🧪 Testing Issue Extraction from ${PHASE_NAME}`)
+  );
   console.log(chalk.gray("=============================================\n"));
 
   // Test 1: Basic AST parsing
@@ -412,15 +414,15 @@ async function issueParsingTest() {
     console.log(chalk.gray("Continuing without label IDs..."));
   }
 
-  // Test 2: Extract issues from Phase 1 only
-  console.log(chalk.blue("\n📋 Test 2: Extract issues from Phase 1..."));
+  // Test 2: Extract issues from Phase name only
+  console.log(chalk.blue(`\n📋 Test 2: Extract issues from ${PHASE_NAME}...`));
   try {
     const phase1Issues = extractIssuesFromPhase(ast, PHASE_NAME, labels);
-    console.log(chalk.green("✅ Phase 1 issue extraction successful"));
+    console.log(chalk.green(`✅ ${PHASE_NAME} issue extraction successful`));
     console.log(chalk.gray("Extracted issues count:", phase1Issues.length));
 
     if (phase1Issues.length > 0) {
-      console.log(chalk.yellow("\n📝 Phase 1 Issues:"));
+      console.log(chalk.yellow(`\n📝 ${PHASE_NAME} Issues:`));
       phase1Issues.forEach((issue, index) => {
         console.log(chalk.cyan(`  Issue ${index + 1}:`));
         console.log(chalk.white(`    Name: "${issue.name}"`));
@@ -433,17 +435,17 @@ async function issueParsingTest() {
     }
   } catch (error) {
     console.log(
-      chalk.red("❌ Phase 1 issue extraction failed:"),
+      chalk.red(`❌ ${PHASE_NAME} issue extraction failed:`),
       error.message
     );
     return;
   }
 
   // Test 3: Issue validation
-  console.log(chalk.blue("\n✅ Test 3: Issue validation..."));
+  console.log(chalk.blue(`\n✅ Test 3: Issue validation...`));
   try {
     const phase1Issues = extractIssuesFromPhase(ast, PHASE_NAME, labels);
-    console.log(chalk.green("✅ Issue validation test"));
+    console.log(chalk.green(`✅ ${PHASE_NAME} Issue validation test`));
 
     phase1Issues.forEach((issue, index) => {
       const isValid = validateIssue(issue);
@@ -462,8 +464,10 @@ async function issueParsingTest() {
     return;
   }
 
-  // Test 4: Export Phase 1 issues to JSON
-  console.log(chalk.blue("\n💾 Test 4: Export Phase 1 issues to JSON..."));
+  // Test 4: Export Phase name issues to JSON
+  console.log(
+    chalk.blue(`\n💾 Test 4: Export ${PHASE_NAME} issues to JSON...`)
+  );
   try {
     const phase1Issues = extractIssuesFromPhase(ast, PHASE_NAME, labels);
     await exportIssuesToJSON(phase1Issues, exportIssuePhase1Path);
@@ -478,7 +482,9 @@ async function issueParsingTest() {
   try {
     const phase1Issues = extractIssuesFromPhase(ast, PHASE_NAME, labels);
     console.log(
-      chalk.white(`  Total Phase 1 issues extracted: ${phase1Issues.length}`)
+      chalk.white(
+        `  Total ${PHASE_NAME} issues extracted: ${phase1Issues.length}`
+      )
     );
 
     const completedIssues = phase1Issues.filter(
@@ -511,7 +517,9 @@ async function issueParsingTest() {
   }
 
   console.log(
-    chalk.green.bold("\n🎉 Phase 1 issue extraction and export completed!")
+    chalk.green.bold(
+      `\n🎉 ${PHASE_NAME} issue extraction and export completed!`
+    )
   );
 }
 

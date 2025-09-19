@@ -3,7 +3,7 @@ import path from "path";
 import { markdownParser } from "./utils/markdown-parser.js";
 
 import { getIssues, deleteAllIssues, deleteIssue } from "./apis/issue.api.js";
-
+import { getModules } from "./apis/module.api.js";
 // const checklistFolder = path.resolve(process.cwd(), "checklist-example");
 // const checklistFile = path.resolve(checklistFolder, "checklist-example.md");
 
@@ -16,4 +16,6 @@ import { getIssues, deleteAllIssues, deleteIssue } from "./apis/issue.api.js";
 
 // await deleteIssue("4baa0f78-17b9-470e-ae0d-bed0e5debfa6");
 
-await deleteAllIssues(true);
+// await deleteAllIssues(true);
+
+const modules = await getModules();

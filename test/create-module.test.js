@@ -4,9 +4,14 @@ import fs from "fs";
 import "dotenv/config";
 
 import { getModules, createModule } from "../src/apis/module.api.js";
+import { processBatches, createApiBatchProcessor } from "../src/utils/utils.js";
 
 const outputFolder = path.resolve(process.cwd(), "output");
 const modulesJSONPath = path.resolve(outputFolder, "backend-modules.json");
+
+// Batching configuration
+const BATCH_SIZE = 20; // 20 modules per batch
+const SLEEP_MS = 2000; // 2 seconds sleep between batches
 
 /**
  * Load modules from JSON file
@@ -186,33 +191,63 @@ async function createModuleTest() {
       )
     );
 
-    // Uncomment the following lines to actually create modules:
-    console.log(chalk.blue("\n🚀 Creating modules..."));
-    let successCount = 0;
-    let errorCount = 0;
+    // Create modules using batching strategy
+    console.log(chalk.blue("\n🚀 Creating modules using batching strategy..."));
 
-    for (const module of preparedModules) {
-      try {
-        console.log(chalk.blue(`Creating: "${module.preparedData.name}"...`));
-        const createdModule = await createModule(module.preparedData);
-        if (createdModule) {
-          console.log(chalk.green(`✅ Created: ${createdModule.name}`));
-          successCount++;
-        }
-      } catch (error) {
+    // Extract prepared data for batching
+    const modulesToCreateData = preparedModules.map(
+      (module) => module.preparedData
+    );
+
+    // Create API processor function
+    const apiProcessor = createApiBatchProcessor(createModule);
+
+    // Process modules in batches
+    const results = await processBatches(modulesToCreateData, apiProcessor, {
+      batchSize: BATCH_SIZE,
+      sleepMs: SLEEP_MS,
+      onBatchStart: (batchNumber, totalBatches, batchSize) => {
         console.log(
-          chalk.red(
-            `❌ Failed to create "${module.preparedData.name}": ${error.message}`
+          chalk.blue.bold(
+            `\n📦 Batch ${batchNumber}/${totalBatches}: Creating ${batchSize} modules concurrently...`
           )
         );
-        errorCount++;
-      }
-    }
-
-    console.log(chalk.green.bold("\n📊 Creation Summary:"));
-    console.log(chalk.white(`  Successfully created: ${successCount}`));
-    console.log(chalk.white(`  Failed to create: ${errorCount}`));
-    console.log(chalk.white(`  Total processed: ${preparedModules.length}`));
+      },
+      onItemStart: (module, index, total) => {
+        console.log(
+          chalk.blue(`📤 Creating module ${index}/${total}: "${module.name}"`)
+        );
+      },
+      onItemSuccess: (module, result, index) => {
+        console.log(
+          chalk.green(`✅ Created module ${index}: "${module.name}"`)
+        );
+      },
+      onItemError: (module, error, index) => {
+        console.log(
+          chalk.red(
+            `❌ Failed to create module ${index}: "${module.name}" - ${error.message}`
+          )
+        );
+      },
+      onBatchComplete: (batchNumber, stats, batchResults) => {
+        console.log(chalk.blue.bold(`\n📊 Batch ${batchNumber} Results:`));
+        console.log(chalk.green(`✅ Successful: ${stats.successful}`));
+        console.log(chalk.red(`❌ Failed: ${stats.failed}`));
+        console.log(chalk.cyan(`⏱️  Batch time: ${stats.batchTime}ms`));
+      },
+      onAllComplete: (finalResults) => {
+        console.log(
+          chalk.green.bold(`\n🎉 Completed all module creation batches!`)
+        );
+        console.log(chalk.blue.bold(`\n📊 Final Results:`));
+        console.log(
+          chalk.green(`✅ Total Successful: ${finalResults.successful}`)
+        );
+        console.log(chalk.red(`❌ Total Failed: ${finalResults.failed}`));
+        console.log(chalk.cyan(`⏱️  Total time: ${finalResults.totalTime}ms`));
+      },
+    });
   } catch (error) {
     console.log(chalk.red(`❌ Test failed: ${error.message}`));
   }

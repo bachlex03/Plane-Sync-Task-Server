@@ -4,9 +4,14 @@ import fs from "fs";
 import "dotenv/config";
 
 import { getLabels, createLabel } from "../src/apis/label.api.js";
+import { processBatches, createApiBatchProcessor } from "../src/utils/utils.js";
 
 const outputFolder = path.resolve(process.cwd(), "output");
 const modulesJSONPath = path.resolve(outputFolder, "backend-modules.json");
+
+// Batching configuration
+const BATCH_SIZE = 20; // 20 labels per batch
+const SLEEP_MS = 2000; // 2 seconds sleep between batches
 
 /**
  * Load modules from JSON file and extract unique labels
@@ -295,33 +300,61 @@ async function createLabelTest() {
       )
     );
 
-    // Uncomment the following lines to actually create labels:
-    console.log(chalk.blue("\n🚀 Creating labels..."));
-    let successCount = 0;
-    let errorCount = 0;
+    // Create labels using batching strategy
+    console.log(chalk.blue("\n🚀 Creating labels using batching strategy..."));
 
-    for (const label of preparedLabels) {
-      try {
-        console.log(chalk.blue(`Creating: "${label.preparedData.name}"...`));
-        const createdLabel = await createLabel(label.preparedData);
-        if (createdLabel) {
-          console.log(chalk.green(`✅ Created: ${createdLabel.name}`));
-          successCount++;
-        }
-      } catch (error) {
+    // Extract prepared data for batching
+    const labelsToCreateData = preparedLabels.map(
+      (label) => label.preparedData
+    );
+
+    // Create API processor function
+    const apiProcessor = createApiBatchProcessor(createLabel);
+
+    // Process labels in batches
+    const results = await processBatches(labelsToCreateData, apiProcessor, {
+      batchSize: BATCH_SIZE,
+      sleepMs: SLEEP_MS,
+      onBatchStart: (batchNumber, totalBatches, batchSize) => {
         console.log(
-          chalk.red(
-            `❌ Failed to create "${label.preparedData.name}": ${error.message}`
+          chalk.blue.bold(
+            `\n📦 Batch ${batchNumber}/${totalBatches}: Creating ${batchSize} labels concurrently...`
           )
         );
-        errorCount++;
-      }
-    }
-
-    console.log(chalk.green.bold("\n📊 Creation Summary:"));
-    console.log(chalk.white(`  Successfully created: ${successCount}`));
-    console.log(chalk.white(`  Failed to create: ${errorCount}`));
-    console.log(chalk.white(`  Total processed: ${preparedLabels.length}`));
+      },
+      onItemStart: (label, index, total) => {
+        console.log(
+          chalk.blue(`📤 Creating label ${index}/${total}: "${label.name}"`)
+        );
+      },
+      onItemSuccess: (label, result, index) => {
+        console.log(chalk.green(`✅ Created label ${index}: "${label.name}"`));
+      },
+      onItemError: (label, error, index) => {
+        console.log(
+          chalk.red(
+            `❌ Failed to create label ${index}: "${label.name}" - ${error.message}`
+          )
+        );
+      },
+      onBatchComplete: (batchNumber, stats, batchResults) => {
+        console.log(chalk.blue.bold(`\n📊 Batch ${batchNumber} Results:`));
+        console.log(chalk.green(`✅ Successful: ${stats.successful}`));
+        console.log(chalk.red(`❌ Failed: ${stats.failed}`));
+        console.log(chalk.cyan(`⏱️  Batch time: ${stats.batchTime}ms`));
+      },
+      onAllComplete: (finalResults) => {
+        console.log(
+          chalk.green.bold(`\n🎉 Completed all label creation batches!`)
+        );
+        console.log(chalk.blue.bold(`\n📊 Final Results:`));
+        console.log(
+          chalk.green(`✅ Total Successful: ${finalResults.successful}`)
+        );
+        console.log(chalk.red(`❌ Total Failed: ${finalResults.failed}`));
+        console.log(chalk.cyan(`⏱️  Total time: ${finalResults.totalTime}ms`));
+      },
+    });
   } catch (error) {
     console.log(chalk.red(`❌ Test failed: ${error.message}`));
   }

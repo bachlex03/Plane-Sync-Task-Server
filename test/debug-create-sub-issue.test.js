@@ -4,6 +4,7 @@ import fs from "fs";
 import "dotenv/config";
 
 import { getIssues, createIssue } from "../src/apis/issue.api.js";
+import { processBatches, createApiBatchProcessor } from "../src/utils/utils.js";
 
 const outputFolder = path.resolve(process.cwd(), "output");
 const subIssuesJSONPath = path.resolve(
@@ -88,15 +89,6 @@ function findParentIssueByName(issues, parentIssueName) {
   );
 
   return parentIssue || null;
-}
-
-/**
- * Sleep utility function
- * @param {number} ms - Milliseconds to sleep
- * @returns {Promise} Promise that resolves after the specified time
- */
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function createSubIssueTest() {
@@ -197,95 +189,70 @@ async function createSubIssueTest() {
           )
         );
 
-        // Process in batches of BATCH_SIZE
-        for (let i = 0; i < parentSubIssues.length; i += BATCH_SIZE) {
-          const batch = parentSubIssues.slice(i, i + BATCH_SIZE);
-          const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
-          const totalBatches = Math.ceil(parentSubIssues.length / BATCH_SIZE);
+        // Prepare sub-issues with parent ID
+        const preparedSubIssues = parentSubIssues.map((subIssue) => ({
+          ...subIssue,
+          payload: {
+            ...subIssue.payload,
+            parent: parentIssue.id,
+          },
+        }));
 
-          console.log(
-            chalk.blue.bold(
-              `\n📦 Batch ${batchNumber}/${totalBatches}: Creating ${batch.length} sub-issues concurrently...`
-            )
-          );
+        // Create API processor function
+        const apiProcessor = createApiBatchProcessor(createIssue);
 
-          // Prepare all sub-issues in this batch with parent ID
-          const preparedSubIssues = batch.map((subIssue) => ({
-            ...subIssue,
-            payload: {
-              ...subIssue.payload,
-              parent: parentIssue.id,
-            },
-          }));
-
-          // Start timing for this batch
-          const batchStartTime = Date.now();
-
-          // Create all sub-issues in this batch concurrently
-          const createPromises = preparedSubIssues.map(
-            async (preparedSubIssue, index) => {
-              try {
-                console.log(
-                  chalk.blue(
-                    `📤 Creating sub-issue ${i + index + 1}/${
-                      parentSubIssues.length
-                    }: "${preparedSubIssue.name}"`
-                  )
-                );
-                const result = await createIssue(preparedSubIssue);
-                console.log(
-                  chalk.green(
-                    `✅ Created sub-issue ${i + index + 1}: "${
-                      preparedSubIssue.name
-                    }"`
-                  )
-                );
-                return { success: true, result, index };
-              } catch (error) {
-                console.log(
-                  chalk.red(
-                    `❌ Failed to create sub-issue ${i + index + 1}: "${
-                      preparedSubIssue.name
-                    }" - ${error.message}`
-                  )
-                );
-                return { success: false, error, index };
-              }
-            }
-          );
-
-          // Wait for all API calls in this batch to complete
-          const results = await Promise.allSettled(createPromises);
-
-          // Calculate timing for this batch
-          const batchEndTime = Date.now();
-          const batchTime = batchEndTime - batchStartTime;
-
-          // Log batch results
-          const successful = results.filter(
-            (r) => r.status === "fulfilled" && r.value.success
-          ).length;
-          const failed = results.length - successful;
-
-          console.log(chalk.blue.bold(`\n📊 Batch ${batchNumber} Results:`));
-          console.log(chalk.green(`✅ Successful: ${successful}`));
-          console.log(chalk.red(`❌ Failed: ${failed}`));
-          console.log(chalk.cyan(`⏱️  Batch time: ${batchTime}ms`));
-
-          // Sleep between batches (except after the last batch)
-          if (i + BATCH_SIZE < parentSubIssues.length) {
+        // Process sub-issues in batches
+        const results = await processBatches(preparedSubIssues, apiProcessor, {
+          batchSize: BATCH_SIZE,
+          sleepMs: SLEEP_MS,
+          onBatchStart: (batchNumber, totalBatches, batchSize) => {
             console.log(
-              chalk.yellow(`😴 Sleeping for ${SLEEP_MS}ms before next batch...`)
+              chalk.blue.bold(
+                `\n📦 Batch ${batchNumber}/${totalBatches}: Creating ${batchSize} sub-issues concurrently...`
+              )
             );
-            await sleep(SLEEP_MS);
-          }
-        }
-
-        console.log(
-          chalk.green.bold(
-            `\n🎉 Completed all batches for parent: "${parentIssue.name}"`
-          )
-        );
+          },
+          onItemStart: (item, index, total) => {
+            console.log(
+              chalk.blue(
+                `📤 Creating sub-issue ${index}/${total}: "${item.name}"`
+              )
+            );
+          },
+          onItemSuccess: (item, result, index) => {
+            console.log(
+              chalk.green(`✅ Created sub-issue ${index}: "${item.name}"`)
+            );
+          },
+          onItemError: (item, error, index) => {
+            console.log(
+              chalk.red(
+                `❌ Failed to create sub-issue ${index}: "${item.name}" - ${error.message}`
+              )
+            );
+          },
+          onBatchComplete: (batchNumber, stats, batchResults) => {
+            console.log(chalk.blue.bold(`\n📊 Batch ${batchNumber} Results:`));
+            console.log(chalk.green(`✅ Successful: ${stats.successful}`));
+            console.log(chalk.red(`❌ Failed: ${stats.failed}`));
+            console.log(chalk.cyan(`⏱️  Batch time: ${stats.batchTime}ms`));
+          },
+          onAllComplete: (finalResults) => {
+            console.log(
+              chalk.green.bold(
+                `\n🎉 Completed all batches for parent: "${parentIssue.name}"`
+              )
+            );
+            console.log(chalk.blue.bold(`\n📊 Final Results:`));
+            console.log(
+              chalk.green(`✅ Total Successful: ${finalResults.successful}`)
+            );
+            console.log(chalk.red(`❌ Total Failed: ${finalResults.failed}`));
+            console.log(
+              chalk.cyan(`⏱️  Total time: ${finalResults.totalTime}ms`)
+            );
+          },
+        });
       }
     } else {
       console.log(chalk.red(`❌ Parent issue not found: "${parentIssueName}"`));
