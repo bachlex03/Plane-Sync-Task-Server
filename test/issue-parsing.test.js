@@ -18,11 +18,10 @@ const backendImplementationPhasesPath = path.resolve(
 const outputFolder = path.resolve(process.cwd(), "output");
 const exportIssuePhase1Path = path.resolve(
   outputFolder,
-  "backend-issues-phase2_1.json"
+  "backend-issues-phase3.json"
 );
 
-const PHASE_NAME =
-  "Phase 2.1: [BE-OPS] Quản trị vận hành & kỹ thuật (Operation & Technical Management)";
+const PHASE_NAME = "Phase 3: [BE-SYNC] Đồng bộ, Conflict & Tính sẵn sàng";
 
 /**
  * Extract label from module name
