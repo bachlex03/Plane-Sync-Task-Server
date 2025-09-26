@@ -7,13 +7,10 @@ import { getIssues, createIssue } from "../src/apis/issue.api.js";
 import { getModules, addIssuesToModule } from "../src/apis/module.api.js";
 
 const outputFolder = path.resolve(process.cwd(), "output");
-const issuesJSONPath = path.resolve(
-  outputFolder,
-  "backend-issues-phase2_1.json"
-);
+const issuesJSONPath = path.resolve(outputFolder, "backend-issues-phase9.json");
 
 const addIssuesToModuleName =
-  "Phase 2.1: Quản trị vận hành & kỹ thuật (Operation & Technical Management)";
+  "Phase 9: Lưu nháp hồ sơ (Save Draft) cho bác sĩ & điều dưỡng";
 
 const BATCH_SIZE = 20; // 20 sub-issues per batch
 const SLEEP_MS = 2000; // 2 seconds sleep between batches
@@ -107,9 +104,12 @@ async function createIssuesInBatches(preparedIssues, batchSize, sleepMs) {
       )
     );
 
-    // Create issues in current batch concurrently
-    const batchPromises = currentBatch.map(async (issueData, index) => {
+    // Create issues in current batch sequentially with delay
+    const batchResults = [];
+    for (let index = 0; index < currentBatch.length; index++) {
+      const issueData = currentBatch[index];
       const globalIndex = startIndex + index + 1;
+
       try {
         console.log(
           chalk.gray(
@@ -120,14 +120,18 @@ async function createIssuesInBatches(preparedIssues, batchSize, sleepMs) {
         const createdIssue = await createIssue(issueData);
         if (createdIssue) {
           console.log(chalk.green(`  ✅ Created: ${createdIssue.name}`));
-          return { success: true, issue: createdIssue };
+          batchResults.push({ success: true, issue: createdIssue });
         } else {
           console.log(
             chalk.red(
               `  ❌ Failed to create: "${issueData.name}" - No response from API`
             )
           );
-          return { success: false, issue: null, error: "No response from API" };
+          batchResults.push({
+            success: false,
+            issue: null,
+            error: "No response from API",
+          });
         }
       } catch (error) {
         console.log(
@@ -135,12 +139,19 @@ async function createIssuesInBatches(preparedIssues, batchSize, sleepMs) {
             `  ❌ Failed to create: "${issueData.name}" - ${error.message}`
           )
         );
-        return { success: false, issue: null, error: error.message };
+        batchResults.push({
+          success: false,
+          issue: null,
+          error: error.message,
+        });
       }
-    });
 
-    // Wait for all issues in current batch to complete
-    const batchResults = await Promise.all(batchPromises);
+      // Add 1 second delay between each issue creation (except for the last issue in the batch)
+      if (index < currentBatch.length - 1) {
+        console.log(chalk.yellow(`  ⏳ Waiting 1 second before next issue...`));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
 
     // Process batch results
     batchResults.forEach((result) => {

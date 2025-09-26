@@ -13,18 +13,18 @@ import {
 
 const docsPath = path.resolve(process.cwd(), "docs");
 const backendPath = path.resolve(docsPath, "backend");
-const phasePath = path.resolve(backendPath, "Phase2");
+const phasePath = path.resolve(backendPath, "Phase1");
 
 const parentIssuesJSONPath = path.resolve(
   process.cwd(),
   "output",
-  "backend-issues-phase2_1.json"
+  "backend-issues-phase1.json"
 );
 
 const subIssuesJSONPath = path.resolve(
   process.cwd(),
   "output",
-  "backend-sub-issues-phase2_1.json"
+  "backend-sub-issues-phase1.json"
 );
 
 /**
@@ -176,15 +176,17 @@ async function subIssueParsingTest() {
       }
     }
 
-    // Step 4: Validate sub issues
+    // Step 4: Validate sub issues and filter valid ones
     console.log(chalk.blue("\n✅ Step 4: Validating sub issues..."));
     let validCount = 0;
     let invalidCount = 0;
+    const validSubIssues = [];
 
     allSubIssues.forEach((subIssue, index) => {
       const isValid = validateSubIssue(subIssue);
       if (isValid) {
         validCount++;
+        validSubIssues.push(subIssue);
         console.log(chalk.green(`  ✅ Sub-issue ${index + 1}: Valid`));
       } else {
         invalidCount++;
@@ -200,13 +202,19 @@ async function subIssueParsingTest() {
     console.log(chalk.white(`  Valid sub-issues: ${validCount}`));
     console.log(chalk.white(`  Invalid sub-issues: ${invalidCount}`));
 
-    // Step 5: Export sub issues to JSON
-    console.log(chalk.blue("\n💾 Step 5: Exporting sub issues to JSON..."));
-    if (allSubIssues.length > 0) {
-      await exportSubIssuesToJSON(allSubIssues, subIssuesJSONPath);
-      console.log(chalk.green("✅ JSON export successful"));
+    // Step 5: Export only valid sub issues to JSON
+    console.log(
+      chalk.blue("\n💾 Step 5: Exporting valid sub issues to JSON...")
+    );
+    if (validSubIssues.length > 0) {
+      await exportSubIssuesToJSON(validSubIssues, subIssuesJSONPath);
+      console.log(
+        chalk.green(
+          `✅ JSON export successful - ${validSubIssues.length} valid sub-issues exported`
+        )
+      );
     } else {
-      console.log(chalk.yellow("⚠️  No sub-issues to export"));
+      console.log(chalk.yellow("⚠️  No valid sub-issues to export"));
     }
 
     // Step 6: Summary
@@ -221,22 +229,22 @@ async function subIssueParsingTest() {
     console.log(chalk.white(`  Valid sub-issues: ${validCount}`));
     console.log(chalk.white(`  Invalid sub-issues: ${invalidCount}`));
 
-    if (allSubIssues.length > 0) {
-      const completedSubIssues = allSubIssues.filter(
+    if (validSubIssues.length > 0) {
+      const completedSubIssues = validSubIssues.filter(
         (subIssue) => subIssue.is_completed
       ).length;
-      const pendingSubIssues = allSubIssues.length - completedSubIssues;
+      const pendingSubIssues = validSubIssues.length - completedSubIssues;
 
       console.log(chalk.white(`  Completed sub-issues: ${completedSubIssues}`));
       console.log(chalk.white(`  Pending sub-issues: ${pendingSubIssues}`));
 
-      const highPrioritySubIssues = allSubIssues.filter(
+      const highPrioritySubIssues = validSubIssues.filter(
         (subIssue) => subIssue.payload.priority === "high"
       ).length;
-      const mediumPrioritySubIssues = allSubIssues.filter(
+      const mediumPrioritySubIssues = validSubIssues.filter(
         (subIssue) => subIssue.payload.priority === "medium"
       ).length;
-      const lowPrioritySubIssues = allSubIssues.filter(
+      const lowPrioritySubIssues = validSubIssues.filter(
         (subIssue) => subIssue.payload.priority === "low"
       ).length;
 

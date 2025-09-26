@@ -1,9 +1,11 @@
 # Phase 6: [BE-INTEGRATION] Phân loại các hệ thống đang sử dụng tại bệnh viện
 
 ## Mục đích
+
 Phân loại và đánh giá các hệ thống thông tin y tế đang được sử dụng tại bệnh viện (HIS, LIS, RIS, PACS, EMR cũ) để xác định chiến lược tích hợp phù hợp, đảm bảo việc chuyển đổi dữ liệu an toàn và hiệu quả.
 
 ## Lưu ý quan trọng
+
 - **Phân tích toàn diện**: Cần khảo sát tất cả hệ thống đang hoạt động, không bỏ sót
 - **Đánh giá rủi ro**: Xác định mức độ phức tạp và rủi ro của từng hệ thống
 - **Ưu tiên thực tế**: Tập trung vào hệ thống có dữ liệu quan trọng nhất trước
@@ -13,6 +15,7 @@ Phân loại và đánh giá các hệ thống thông tin y tế đang được 
 - **Tài liệu hóa**: Ghi chép đầy đủ thông tin về từng hệ thống
 
 ## Dependencies cần thiết
+
 - **Khảo sát công cụ**: Survey tools, interview guides, system documentation
 - **Phân tích dữ liệu**: Data profiling tools, schema analysis tools
 - **Mapping tools**: Schema mapping, data flow diagram tools
@@ -113,15 +116,12 @@ libs/backend/
 
 ## Checklist triển khai
 
-### 1. Những việc đã làm
-- [ ] [High] Khảo sát ban đầu về các hệ thống đang sử dụng
-- [ ] [High] Thu thập thông tin cơ bản về từng hệ thống
-- [ ] [Medium] Đánh giá sơ bộ về mức độ quan trọng của từng hệ thống
+### 1. Những việc cần làm
 
-### 2. Những việc cần làm
+#### 1.1. Phân loại hệ thống theo loại hình
 
-#### 2.1. Phân loại hệ thống theo loại hình
 - [ ] [High] **HIS (Hospital Information System)**
+
   - [ ] [High] Xác định vendor và version của HIS
   - [ ] [High] Phân tích modules chính: Patient Management, Billing, Pharmacy, etc.
   - [ ] [High] Đánh giá khả năng tích hợp API/Interface
@@ -130,6 +130,7 @@ libs/backend/
   - [ ] [Low] Phân tích hiệu suất và khả năng mở rộng
 
 - [ ] [High] **LIS (Laboratory Information System)**
+
   - [ ] [High] Xác định vendor và version của LIS
   - [ ] [High] Phân tích workflow xét nghiệm: Order → Sample → Result
   - [ ] [High] Đánh giá hỗ trợ chuẩn HL7 v2.x và FHIR
@@ -138,6 +139,7 @@ libs/backend/
   - [ ] [Low] Phân tích báo cáo và analytics
 
 - [ ] [High] **RIS (Radiology Information System)**
+
   - [ ] [High] Xác định vendor và version của RIS
   - [ ] [High] Phân tích workflow chẩn đoán hình ảnh
   - [ ] [High] Đánh giá tích hợp với PACS
@@ -146,6 +148,7 @@ libs/backend/
   - [ ] [Low] Phân tích báo cáo và billing
 
 - [ ] [High] **PACS (Picture Archiving and Communication System)**
+
   - [ ] [High] Xác định vendor và version của PACS
   - [ ] [High] Phân tích storage và retrieval workflow
   - [ ] [High] Đánh giá chuẩn DICOM compliance
@@ -161,8 +164,10 @@ libs/backend/
   - [ ] [Medium] Đánh giá user adoption và training needs
   - [ ] [Low] Phân tích cost of maintenance
 
-#### 2.2. Phân tích kỹ thuật chi tiết
+#### 1.2. Phân tích kỹ thuật chi tiết
+
 - [ ] [High] **Data Source Analysis**
+
   - [ ] [High] Xác định loại database (SQL Server, Oracle, MySQL, etc.)
   - [ ] [High] Phân tích schema và data structure
   - [ ] [High] Đánh giá data volume và growth rate
@@ -171,6 +176,7 @@ libs/backend/
   - [ ] [Low] Đánh giá performance bottlenecks
 
 - [ ] [High] **Integration Capability Assessment**
+
   - [ ] [High] Đánh giá API availability và documentation
   - [ ] [High] Phân tích authentication và authorization
   - [ ] [High] Xác định rate limits và throttling
@@ -186,8 +192,10 @@ libs/backend/
   - [ ] [Medium] Phân tích data transformation requirements
   - [ ] [Low] Đánh giá compliance với healthcare standards
 
-#### 2.3. Đánh giá rủi ro và phức tạp
+#### 1.3. Đánh giá rủi ro và phức tạp
+
 - [ ] [High] **Risk Assessment**
+
   - [ ] [High] Đánh giá rủi ro về data loss
   - [ ] [High] Phân tích rủi ro về system downtime
   - [ ] [High] Xác định rủi ro về data inconsistency
@@ -203,7 +211,8 @@ libs/backend/
   - [ ] [Medium] Phân tích độ phức tạp của deployment
   - [ ] [Low] Đánh giá độ phức tạp của maintenance
 
-#### 2.4. Tạo báo cáo phân loại
+#### 1.4. Tạo báo cáo phân loại
+
 - [ ] [High] **System Classification Report**
   - [ ] [High] Tạo báo cáo tổng quan về từng hệ thống
   - [ ] [High] Phân loại theo mức độ ưu tiên tích hợp
@@ -212,10 +221,12 @@ libs/backend/
   - [ ] [Medium] Đề xuất chiến lược tích hợp
   - [ ] [Low] Ước tính cost và resource requirements
 
-### 3. Bổ sung checklist nâng cao
+### 2. Bổ sung checklist nâng cao
 
-#### 3.1. Advanced Analysis
+#### 2.1. Advanced Analysis
+
 - [ ] [Medium] **Data Quality Assessment**
+
   - [ ] [Medium] Phân tích completeness của dữ liệu
   - [ ] [Medium] Đánh giá accuracy và consistency
   - [ ] [Medium] Xác định data lineage và provenance
@@ -223,6 +234,7 @@ libs/backend/
   - [ ] [Low] Đánh giá data retention policies
 
 - [ ] [Medium] **Performance Analysis**
+
   - [ ] [Medium] Đánh giá response time của APIs
   - [ ] [Medium] Phân tích throughput và capacity
   - [ ] [Medium] Xác định performance bottlenecks
@@ -236,8 +248,10 @@ libs/backend/
   - [ ] [Low] Đánh giá audit logging capabilities
   - [ ] [Low] Phân tích compliance với security standards
 
-#### 3.2. Integration Strategy
+#### 2.2. Integration Strategy
+
 - [ ] [Medium] **Integration Approach Selection**
+
   - [ ] [Medium] Đánh giá real-time vs batch integration
   - [ ] [Medium] Phân tích push vs pull mechanisms
   - [ ] [Medium] Xác định event-driven vs request-response
@@ -251,8 +265,10 @@ libs/backend/
   - [ ] [Low] Đánh giá monitoring và alerting tools
   - [ ] [Low] Phân tích testing và validation tools
 
-#### 3.3. Compliance và Governance
+#### 2.3. Compliance và Governance
+
 - [ ] [Medium] **Regulatory Compliance**
+
   - [ ] [Medium] Đánh giá HIPAA compliance
   - [ ] [Medium] Phân tích GDPR requirements
   - [ ] [Medium] Xác định local healthcare regulations
@@ -266,8 +282,10 @@ libs/backend/
   - [ ] [Low] Đánh giá metadata management
   - [ ] [Low] Phân tích data catalog requirements
 
-#### 3.4. Change Management
+#### 2.4. Change Management
+
 - [ ] [Medium] **Stakeholder Analysis**
+
   - [ ] [Medium] Xác định key stakeholders cho từng hệ thống
   - [ ] [Medium] Phân tích impact trên các department
   - [ ] [Medium] Đánh giá resistance to change
@@ -281,8 +299,10 @@ libs/backend/
   - [ ] [Low] Đánh giá parallel operation requirements
   - [ ] [Low] Phân tích go-live strategies
 
-#### 3.5. Monitoring và Maintenance
+#### 2.5. Monitoring và Maintenance
+
 - [ ] [Medium] **Operational Monitoring**
+
   - [ ] [Medium] Đánh giá monitoring requirements
   - [ ] [Medium] Phân tích alerting và notification needs
   - [ ] [Medium] Xác định performance metrics
@@ -294,4 +314,4 @@ libs/backend/
   - [ ] [Medium] Phân tích support requirements
   - [ ] [Medium] Xác định escalation procedures
   - [ ] [Low] Đánh giá vendor support agreements
-  - [ ] [Low] Phân tích internal support capabilities 
+  - [ ] [Low] Phân tích internal support capabilities

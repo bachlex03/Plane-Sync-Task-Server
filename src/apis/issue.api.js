@@ -3,11 +3,11 @@ import chalk from "chalk";
 import "dotenv/config";
 
 const stateOfIssues = {
-  backlog: "b2339689-0156-490f-b557-0b0b9353916b",
-  todo: "56527be1-33ab-4e83-b280-97a32b1ba625",
-  in_progress: "3179ca5c-7d72-439a-a548-22dc41f303fd",
-  done: "b3bcaf66-e3a9-464e-a9fc-3a8d5da5f4bf",
-  cancelled: "3179ca5c-7d72-439a-a548-22dc41f303fd",
+  backlog: "6edf2d2c-b9d3-45a9-a4af-c4a897a2d68e",
+  todo: "6edf2d2c-b9d3-45a9-a4af-c4a897a2d68e",
+  in_progress: "6edf2d2c-b9d3-45a9-a4af-c4a897a2d68e",
+  done: "6edf2d2c-b9d3-45a9-a4af-c4a897a2d68e",
+  cancelled: "6edf2d2c-b9d3-45a9-a4af-c4a897a2d68e",
 };
 
 /**
@@ -40,8 +40,6 @@ export async function createIssue(issueData) {
         priority: issueData.payload.priority,
         start_date: issueData.payload.start_date,
         target_date: issueData.payload.target_date,
-        // sequence_id: issueData.payload.sequence_id,
-        // sort_order: issueData.payload.sort_order,
         completed_at: issueData.payload.completed_at,
         archived_at: issueData.payload.archived_at,
         is_draft: issueData.payload.is_draft,

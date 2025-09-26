@@ -13,10 +13,12 @@ const subIssuesJSONPath = path.resolve(
 );
 
 const BATCH_SIZE = 20; // 20 sub-issues per batch
-const SLEEP_MS = 2000; // 2 seconds sleep between batches
+const SLEEP_MS = 10000; // 1 second sleep between batches
+
+const FORCE_CREATE_SUB_ISSUES = true;
 
 const addSubIssuesToParentIssueNames = [
-  "[BE-CORE]: Xây dựng API Gateway / Load Balancer (Tenant routing, context injection)",
+  "[BE-CORE]: Thiết kế và triển khai database schema cho Multi-DB per Tenant",
 ];
 
 /**
@@ -177,7 +179,7 @@ async function createSubIssueTest() {
         )
       );
 
-      if (processToCreate) {
+      if (processToCreate || FORCE_CREATE_SUB_ISSUES) {
         // Filter sub-issues for this parent
         const parentSubIssues = subIssuesToCreate.filter(
           (subIssue) => subIssue.parent_issue_name === parentIssue.name

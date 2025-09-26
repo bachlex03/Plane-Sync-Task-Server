@@ -18,10 +18,11 @@ const backendImplementationPhasesPath = path.resolve(
 const outputFolder = path.resolve(process.cwd(), "output");
 const exportIssuePhase1Path = path.resolve(
   outputFolder,
-  "backend-issues-phase3.json"
+  "backend-issues-phase9.json"
 );
 
-const PHASE_NAME = "Phase 3: [BE-SYNC] Đồng bộ, Conflict & Tính sẵn sàng";
+const PHASE_NAME =
+  "Phase 9: [BE-DRAFT] Lưu nháp hồ sơ (Save Draft) cho bác sĩ & điều dưỡng";
 
 /**
  * Extract label from module name
@@ -290,8 +291,8 @@ function parseIssueText(text) {
     priority: priority,
     start_date: null,
     target_date: null,
-    sequence_id: null,
-    sort_order: null,
+    sequence_id: 0,
+    sort_order: 0,
     completed_at: null,
     archived_at: null,
     is_draft: false,
